@@ -18,14 +18,16 @@ function stranicaPostavki() {
       '<section class="kartica">' +
         '<h2>Osnovno</h2>' +
         '<label class="polje">Naziv turnira' +
-          '<input type="text" name="naziv" maxlength="100" value="' + sigurnoHtml(p.naziv) + '" placeholder="npr. Kup Sarajeva 2026">' +
+          '<input type="text" name="naziv" maxlength="100" value="' + sigurnoHtml(p.naziv) + '" placeholder="npr. Kup Sarajeva 2026" aria-describedby="greska-naziv">' +
+          mjestoZaGresku('naziv') +
         '</label>' +
         '<label class="polje">Format' +
           '<select name="format">' + opcijeFormata + '</select>' +
         '</label>' +
         '<p id="opis-formata" class="napomena">' + Formati[p.format].opis + '</p>' +
         '<label class="polje">Broj preliminarnih rundi' +
-          '<input type="number" name="brojRundi" min="' + NAJMANJE_RUNDI + '" max="' + NAJVISE_RUNDI + '" step="1" value="' + p.brojRundi + '">' +
+          poljeZaBroj('brojRundi', p.brojRundi) +
+          mjestoZaGresku('brojRundi') +
         '</label>' +
       '</section>' +
       '<section class="kartica">' +
@@ -60,14 +62,28 @@ function poljaRaspona(formatKljuc, rasponi) {
     html +=
       '<div class="raspon">' +
         '<span class="raspon-naziv">' + format.rasponi[kljuc].naziv + '</span>' +
-        '<label>od <input type="number" name="' + kljuc + '-min" step="1" min="0" value="' + rasponi[kljuc].min + '"></label>' +
-        '<label>do <input type="number" name="' + kljuc + '-max" step="1" min="0" value="' + rasponi[kljuc].max + '"></label>' +
+        '<label class="raspon-polje">od ' + poljeZaBroj(kljuc + '-min', rasponi[kljuc].min) + mjestoZaGresku(kljuc + '-min') + '</label>' +
+        '<label class="raspon-polje">do ' + poljeZaBroj(kljuc + '-max', rasponi[kljuc].max) + mjestoZaGresku(kljuc + '-max') + '</label>' +
       '</div>';
   }
   if (format.napomena) {
     html += '<p class="napomena">' + format.napomena + '</p>';
   }
   return html;
+}
+
+// Polje za cijeli broj.
+// Namjerno NIJE type="number": takvo polje ima strelice gore/dole koje u uskom
+// polju pojedu mjesto za cifre, a vrijednost mijenja i točkić miša.
+// inputmode="numeric" na mobitelu otvara tastaturu sa brojevima.
+function poljeZaBroj(ime, vrijednost) {
+  return '<input type="text" inputmode="numeric" autocomplete="off" name="' + ime + '"' +
+    ' value="' + vrijednost + '" aria-describedby="greska-' + ime + '">';
+}
+
+// Prazno mjesto ispod polja u koje se upiše greška za to polje.
+function mjestoZaGresku(ime) {
+  return '<span id="greska-' + ime + '" class="greska-polja" aria-live="polite"></span>';
 }
 
 // Poziva se nakon što se stranica prikaže: povezuje dugmad sa funkcijama.
@@ -82,6 +98,12 @@ function pokreniPostavke() {
     var rasponi = spremljeno.format === format ? spremljeno.rasponi : zadaniRasponi(format);
     document.getElementById('polja-raspona').innerHTML = poljaRaspona(format, rasponi);
     document.getElementById('opis-formata').textContent = Formati[format].opis;
+  });
+
+  // Čim korisnik nešto promijeni, stara poruka "Postavke su sačuvane."
+  // više ne važi, pa je sklanjamo da ne zbunjuje.
+  forma.addEventListener('input', function () {
+    prikaziPoruku('poruka-postavki', '', false);
   });
 
   forma.addEventListener('submit', function (dogadjaj) {
@@ -104,28 +126,14 @@ function pokreniPostavke() {
 }
 
 function spremiFormuPostavki(forma) {
-  var format = forma.format.value;
-  var postavke = {
-    naziv: forma.naziv.value.trim(),
-    format: format,
-    brojRundi: Number(forma.brojRundi.value),
-    rasponi: {}
-  };
-  for (var kljuc in Formati[format].rasponi) {
-    postavke.rasponi[kljuc] = {
-      min: Number(forma[kljuc + '-min'].value),
-      max: Number(forma[kljuc + '-max'].value)
-    };
-  }
-
-  var greska = provjeriPostavke(postavke);
-  if (greska) {
-    prikaziPoruku('poruka-postavki', greska, true);
+  // Ako ijedno polje nije ispravno, ne snimamo ništa.
+  if (prikaziGreske(forma, provjeriPostavke(forma))) {
+    prikaziPoruku('poruka-postavki', 'Postavke nisu sačuvane. Ispravi označena polja.', true);
     return;
   }
 
   var turnir = ucitajTurnir();
-  turnir.postavke = postavke;
+  turnir.postavke = procitajPostavke(forma);
   if (sacuvajTurnir(turnir)) {
     prikaziPoruku('poruka-postavki', 'Postavke su sačuvane.', false);
   } else {
@@ -133,25 +141,97 @@ function spremiFormuPostavki(forma) {
   }
 }
 
-// Vraća tekst greške, ili prazan tekst ako je sve u redu.
-function provjeriPostavke(p) {
-  if (p.naziv === '') {
-    return 'Upiši naziv turnira.';
+// Pretvori popunjenu formu u objekat postavki.
+// Poziva se tek kad je provjeriPostavke rekla da su sva polja ispravna.
+function procitajPostavke(forma) {
+  var format = forma.format.value;
+  var postavke = {
+    naziv: forma.naziv.value.trim(),
+    format: format,
+    brojRundi: Number(forma.brojRundi.value.trim()),
+    rasponi: {}
+  };
+  for (var kljuc in Formati[format].rasponi) {
+    postavke.rasponi[kljuc] = {
+      min: Number(forma[kljuc + '-min'].value.trim()),
+      max: Number(forma[kljuc + '-max'].value.trim())
+    };
   }
-  if (!Number.isInteger(p.brojRundi) || p.brojRundi < NAJMANJE_RUNDI || p.brojRundi > NAJVISE_RUNDI) {
-    return 'Broj rundi mora biti cijeli broj od ' + NAJMANJE_RUNDI + ' do ' + NAJVISE_RUNDI + '.';
+  return postavke;
+}
+
+// Provjeri sva polja forme. Vraća objekat grešaka: { imePolja: 'tekst greške' }.
+// Prazan objekat znači da je sve u redu.
+function provjeriPostavke(forma) {
+  var greske = {};
+  if (forma.naziv.value.trim() === '') {
+    greske.naziv = 'Upiši naziv turnira.';
   }
-  for (var kljuc in p.rasponi) {
-    var r = p.rasponi[kljuc];
-    var naziv = Formati[p.format].rasponi[kljuc].naziv;
-    if (!Number.isFinite(r.min) || !Number.isFinite(r.max) || r.min < 0) {
-      return naziv + ': upiši ispravne brojeve.';
+
+  var greskaRundi = greskaBroja(forma.brojRundi.value);
+  if (!greskaRundi) {
+    var brojRundi = Number(forma.brojRundi.value.trim());
+    if (brojRundi < NAJMANJE_RUNDI || brojRundi > NAJVISE_RUNDI) {
+      greskaRundi = 'Broj rundi mora biti od ' + NAJMANJE_RUNDI + ' do ' + NAJVISE_RUNDI + '.';
     }
-    if (r.min >= r.max) {
-      return naziv + ': najmanji broj bodova mora biti manji od najvećeg.';
+  }
+  if (greskaRundi) {
+    greske.brojRundi = greskaRundi;
+  }
+
+  for (var kljuc in Formati[forma.format.value].rasponi) {
+    var poljeOd = forma[kljuc + '-min'];
+    var poljeDo = forma[kljuc + '-max'];
+    var greskaOd = greskaBroja(poljeOd.value);
+    var greskaDo = greskaBroja(poljeDo.value);
+    if (!greskaOd && !greskaDo && Number(poljeOd.value.trim()) >= Number(poljeDo.value.trim())) {
+      greskaOd = '"Od" mora biti manje od "do".';
     }
+    if (greskaOd) {
+      greske[poljeOd.name] = greskaOd;
+    }
+    if (greskaDo) {
+      greske[poljeDo.name] = greskaDo;
+    }
+  }
+  return greske;
+}
+
+// Greška za jedno polje sa brojem, ili prazan tekst ako je broj ispravan.
+function greskaBroja(tekst) {
+  tekst = tekst.trim();
+  if (tekst === '') {
+    return 'Upiši broj.';
+  }
+  if (tekst.charAt(0) === '-') {
+    return 'Broj ne smije biti negativan.';
+  }
+  if (!/^[0-9]+$/.test(tekst)) {
+    return 'Upiši cijeli broj, samo cifre.';
   }
   return '';
+}
+
+// Upiše svaku grešku pored njenog polja i to polje oboji crveno.
+// Vraća true ako ima barem jedna greška.
+function prikaziGreske(forma, greske) {
+  var prvoNeispravno = null;
+  var polja = forma.querySelectorAll('input[aria-describedby]');
+  for (var i = 0; i < polja.length; i++) {
+    var polje = polja[i];
+    var tekst = greske[polje.name] || '';
+    document.getElementById('greska-' + polje.name).textContent = tekst;
+    if (tekst) {
+      polje.setAttribute('aria-invalid', 'true');
+      prvoNeispravno = prvoNeispravno || polje;
+    } else {
+      polje.removeAttribute('aria-invalid');
+    }
+  }
+  if (prvoNeispravno) {
+    prvoNeispravno.focus(); // korisnik odmah vidi gdje je problem
+  }
+  return prvoNeispravno !== null;
 }
 
 function uveziFajl(fajl) {

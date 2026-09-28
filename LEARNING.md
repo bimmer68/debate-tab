@@ -173,3 +173,33 @@ Način da se elementi poslože u kolone i redove. Na stranici Postavke kartice s
   .mreza-postavki { grid-template-columns: 1fr 1fr; }
 }
 ```
+
+---
+
+## Popravka: provjera bodova i kucanje brojeva (Postavke)
+
+### Bug (greška u programu) i uzrok
+Bug je kad program radi drugačije nego što treba. Kod popravke je važno naći **uzrok**, a ne samo sakriti posljedicu.
+Primjer: polja za bodove se nisu mogla kucati. Posljedica je "ne mogu kucati", a uzrok je bio preusko polje u kojem su strelice gore/dole zauzele mjesto za cifre.
+
+### `type="number"` naspram `type="text"` + `inputmode="numeric"`
+`<input type="number">` je polje za broj sa strelicama gore/dole, a vrijednost mijenja i točkić miša. U uskom polju strelice pojedu mjesto za cifre.
+Zato polja za bodove sada koriste običan tekst, a `inputmode="numeric"` kaže mobitelu da otvori tastaturu sa brojevima. Da je upisan ispravan broj provjeravamo sami.
+Primjer iz `js/settings.js`:
+```js
+'<input type="text" inputmode="numeric" name="glavni-min" ...>'
+```
+
+### Regularni izraz (regex)
+Kratak "šablon" kojim se provjerava izgled teksta. `/^[0-9]+$/` znači: "od početka (`^`) do kraja (`$`) samo cifre, barem jedna (`+`)".
+Primjer iz `js/settings.js`: `"14"` prolazi, a `""`, `"-5"`, `"7,5"` i `"abc"` ne prolaze.
+
+### Zašto `Number('')` nije dovoljan
+`Number('')` daje `0`, a ne grešku. Zato bi prazno polje tiho postalo nula. Prvo provjeravamo tekst (funkcija `greskaBroja`), a tek onda ga pretvaramo u broj.
+
+### Greška pored polja i `aria-invalid`
+Svako polje ima ispod sebe prazno mjesto (`<span class="greska-polja">`) u koje upišemo grešku baš za to polje. Atribut `aria-invalid="true"` oboji okvir polja crveno i čitaču ekrana kaže da polje nije ispravno, a `aria-describedby` mu pročita tekst greške.
+Funkcija `prikaziGreske` u `js/settings.js` radi oboje i stavi kursor u prvo neispravno polje.
+
+### Događaj `input`
+Pokrene se svaki put kad korisnik promijeni sadržaj nekog polja. Koristimo ga da sklonimo staru poruku "Postavke su sačuvane." čim korisnik počne mijenjati polja, da ne izgleda kao da su nove vrijednosti već snimljene.

@@ -228,28 +228,49 @@ select:focus-visible {
   outline-offset: 1px;
 }
 
-/* Jedan red: naziv raspona | od [ ] | do [ ] */
+/* Naziv raspona u svom redu, a ispod njega "od [ ]" i "do [ ]" jedno pored drugog.
+   Tako polja za bodove imaju dovoljno mjesta i na uskom mobitelu. */
 .raspon {
   display: grid;
-  grid-template-columns: 7.5em 1fr 1fr;
-  align-items: center;
-  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 4px 12px;
   margin-bottom: 12px;
 }
 
 .raspon-naziv {
+  grid-column: 1 / -1;
   font-weight: 600;
 }
 
-.raspon label {
+.raspon-polje {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  column-gap: 6px;
 }
 
-.raspon input {
+.raspon-polje input {
+  flex: 1;
   width: 100%;
   min-width: 0;
+}
+
+/* Greška ispod polja koje nije ispravno */
+.greska-polja {
+  display: block;
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--boja-greska);
+}
+
+.greska-polja:empty {
+  display: none;
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--boja-greska);
 }
 
 .akcije {
