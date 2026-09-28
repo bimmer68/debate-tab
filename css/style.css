@@ -333,6 +333,29 @@ input[aria-invalid="true"] {
   color: var(--boja-uspjeh);
 }
 
+/* Prozor sa upozorenjem (npr. raspon odstupa od standarda) */
+.dijalog {
+  max-width: 28rem;
+  width: calc(100% - 32px);
+  color: var(--boja-tekst);
+  background: var(--boja-kartica);
+  border: 1px solid var(--boja-okvir);
+  border-radius: var(--radijus);
+  padding: var(--razmak);
+}
+
+.dijalog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.dijalog p {
+  margin-top: 0;
+}
+
+.dijalog .akcije {
+  margin-bottom: 0;
+}
+
 /* Laptop: malo više "zraka" oko sadržaja i postavke u dvije kolone */
 @media (min-width: 900px) {
   :root {

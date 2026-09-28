@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Debate Tab</title>
-  <link rel="stylesheet" href="css/style.css">
+  <!-- "?v=4" je broj verzije. Kad se promijeni bilo koji CSS ili JS fajl,
+       povećaj ga svuda (v=5, v=6...), da browser ne koristi staru kopiju iz keša. -->
+  <link rel="stylesheet" href="css/style.css?v=4">
   <!-- Tema se postavlja odmah, prije nego se stranica prikaže. -->
-  <script src="js/theme.js"></script>
+  <script src="js/theme.js?v=4"></script>
 </head>
 <body>
   <header class="zaglavlje">
@@ -30,12 +32,12 @@
   </footer>
 
   <!-- Redoslijed je bitan: prvo pomoćni fajlovi i podaci, pa stranice, pa navigacija, pa pokretanje. -->
-  <script src="js/utils.js"></script>
-  <script src="js/formats.js"></script>
-  <script src="js/storage.js"></script>
-  <script src="js/settings.js"></script>
-  <script src="js/pages.js"></script>
-  <script src="js/router.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/utils.js?v=4"></script>
+  <script src="js/formats.js?v=4"></script>
+  <script src="js/storage.js?v=4"></script>
+  <script src="js/settings.js?v=4"></script>
+  <script src="js/pages.js?v=4"></script>
+  <script src="js/router.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>

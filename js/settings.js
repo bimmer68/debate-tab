@@ -50,7 +50,17 @@ function stranicaPostavki() {
         '</label>' +
         '<span id="poruka-backup" class="poruka" role="status"></span>' +
       '</div>' +
-    '</section>'
+    '</section>' +
+    // Prozor sa upozorenjem; skriven dok ga ne otvori pitajZaOdstupanje.
+    '<dialog id="upozorenje-raspona" class="dijalog">' +
+      '<form method="dialog">' +
+        '<p id="upozorenje-tekst"></p>' +
+        '<div class="akcije">' +
+          '<button type="submit" value="sacuvaj" class="dugme">Sačuvaj</button>' +
+          '<button type="submit" value="odustani" class="dugme dugme-sporedno">Odustani</button>' +
+        '</div>' +
+      '</form>' +
+    '</dialog>'
   );
 }
 
@@ -132,13 +142,47 @@ function spremiFormuPostavki(forma) {
     return;
   }
 
+  var postavke = procitajPostavke(forma);
+
+  // Raspon koji odstupa od standarda je dozvoljen, ali prvo pitamo.
+  var odstupanja = odstupanjaOdStandarda(postavke.format, postavke.rasponi);
+  if (odstupanja.length > 0) {
+    var tekst = 'Raspon odstupa od standarda za ' + Formati[postavke.format].kratkiNaziv +
+      ' (' + odstupanja.join(', ') + '). Sačuvati svejedno?';
+    pitajZaOdstupanje(tekst, function (sacuvati) {
+      if (sacuvati) {
+        snimiPostavke(postavke);
+      } else {
+        prikaziPoruku('poruka-postavki', 'Postavke nisu sačuvane.', true);
+      }
+    });
+    return;
+  }
+
+  snimiPostavke(postavke);
+}
+
+function snimiPostavke(postavke) {
   var turnir = ucitajTurnir();
-  turnir.postavke = procitajPostavke(forma);
+  turnir.postavke = postavke;
   if (sacuvajTurnir(turnir)) {
     prikaziPoruku('poruka-postavki', 'Postavke su sačuvane.', false);
   } else {
     prikaziPoruku('poruka-postavki', 'Spremanje nije uspjelo. Browser možda ne dozvoljava spremanje podataka.', true);
   }
+}
+
+// Otvori prozor sa upozorenjem i dugmadima Sačuvaj / Odustani.
+// Kad se prozor zatvori, pozove odgovor(true) za "Sačuvaj", a odgovor(false)
+// za "Odustani" ili tipku Esc.
+function pitajZaOdstupanje(tekst, odgovor) {
+  var prozor = document.getElementById('upozorenje-raspona');
+  document.getElementById('upozorenje-tekst').textContent = tekst;
+  prozor.returnValue = '';
+  prozor.addEventListener('close', function () {
+    odgovor(prozor.returnValue === 'sacuvaj');
+  }, { once: true });
+  prozor.showModal();
 }
 
 // Pretvori popunjenu formu u objekat postavki.
