@@ -17,9 +17,7 @@ var Stranice = {
     );
   },
 
-  postavke: function () {
-    return uIzradi('Postavke', 'Ovdje će se podešavati naziv turnira, format, broj rundi i rasponi bodova.', 2);
-  },
+  postavke: stranicaPostavki,
 
   timovi: function () {
     return uIzradi('Timovi', 'Ovdje će se unositi klubovi i timovi sa govornicima.', 3);
@@ -43,6 +41,12 @@ var Stranice = {
       '<p><a href="#/">Nazad na početnu</a></p>'
     );
   }
+};
+
+// Neke stranice, nakon što se prikažu, trebaju povezati dugmad i polja
+// sa funkcijama. Ovdje piše koja funkcija se tada pokreće.
+var NakonPrikaza = {
+  postavke: pokreniPostavke
 };
 
 // Jedna pločica (kartica) na početnoj stranici.

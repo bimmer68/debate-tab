@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Debate Tab</title>
   <link rel="stylesheet" href="css/style.css">
+  <!-- Tema se postavlja odmah, prije nego se stranica prikaže. -->
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <header class="zaglavlje">
@@ -16,6 +18,7 @@
       <a href="#/runde" data-stranica="runde">Runde</a>
       <a href="#/tab" data-stranica="tab">Tab</a>
     </nav>
+    <button type="button" id="prekidac-teme" class="prekidac-teme">☀ Svijetla tema</button>
   </header>
 
   <main id="sadrzaj" class="sadrzaj">
@@ -26,7 +29,11 @@
     Debate Tab · podaci se čuvaju samo u ovom browseru
   </footer>
 
-  <!-- Redoslijed je bitan: prvo stranice, pa navigacija, pa pokretanje. -->
+  <!-- Redoslijed je bitan: prvo pomoćni fajlovi i podaci, pa stranice, pa navigacija, pa pokretanje. -->
+  <script src="js/utils.js"></script>
+  <script src="js/formats.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/settings.js"></script>
   <script src="js/pages.js"></script>
   <script src="js/router.js"></script>
   <script src="js/app.js"></script>

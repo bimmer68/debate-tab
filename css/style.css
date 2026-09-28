@@ -1,17 +1,43 @@
 /* Osnovni izgled aplikacije Debate Tab. */
 
-/* Boje i razmaci na jednom mjestu, da ih je lako mijenjati. */
+/* Boje i razmaci na jednom mjestu, da ih je lako mijenjati.
+   Zadana je tamna tema. */
 :root {
+  --boja-glavna: #1b3a57;
+  --boja-glavna-tamna: #122a40;
+  --boja-naglasak: #7db4e8;
+  --boja-dugme: #2f6fad;
+  --boja-dugme-hover: #3a80c4;
+  --boja-pozadina: #121417;
+  --boja-kartica: #1c2026;
+  --boja-polje: #14171b;
+  --boja-tekst: #e6e8eb;
+  --boja-tekst-blijeda: #9aa4af;
+  --boja-okvir: #323842;
+  --boja-greska: #ff8a80;
+  --boja-uspjeh: #7ed69a;
+  --razmak: 16px;
+  --radijus: 8px;
+  --sirina-sadrzaja: 1400px;
+  color-scheme: dark; /* browser crta i svoja polja (npr. padajući meni) tamno */
+}
+
+/* Svijetla tema: uključuje se prekidačem u navigaciji. */
+:root[data-tema="svijetla"] {
   --boja-glavna: #1f4e79;
   --boja-glavna-tamna: #163a5a;
+  --boja-naglasak: #1f4e79;
+  --boja-dugme: #1f4e79;
+  --boja-dugme-hover: #163a5a;
   --boja-pozadina: #f4f6f9;
   --boja-kartica: #ffffff;
+  --boja-polje: #ffffff;
   --boja-tekst: #1c1f23;
   --boja-tekst-blijeda: #5b6470;
   --boja-okvir: #d9dee5;
-  --razmak: 16px;
-  --radijus: 8px;
-  --sirina-sadrzaja: 960px;
+  --boja-greska: #b3261e;
+  --boja-uspjeh: #1e7a3c;
+  color-scheme: light;
 }
 
 * {
@@ -30,11 +56,12 @@ body {
   flex-direction: column;
 }
 
-/* Zaglavlje sa nazivom i navigacijom */
+/* Zaglavlje sa nazivom i navigacijom.
+   Bočni razmak se poravnava sa sadržajem ispod, i na širokim ekranima. */
 .zaglavlje {
   background: var(--boja-glavna);
   color: #fff;
-  padding: 12px var(--razmak);
+  padding: 12px max(var(--razmak), calc((100% - var(--sirina-sadrzaja)) / 2 + var(--razmak)));
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -69,8 +96,26 @@ body {
 /* Stranica na kojoj se korisnik trenutno nalazi */
 .navigacija a.aktivna {
   background: #fff;
-  color: var(--boja-glavna);
+  color: #1b3a57;
   font-weight: 600;
+}
+
+/* Dugme za promjenu teme, desno u zaglavlju */
+.prekidac-teme {
+  margin-left: auto;
+  font: inherit;
+  font-size: 0.9rem;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radijus);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.prekidac-teme:hover,
+.prekidac-teme:focus-visible {
+  background: var(--boja-glavna-tamna);
 }
 
 /* Glavni dio stranice */
@@ -102,7 +147,7 @@ body {
 /* Mreža kartica na početnoj stranici */
 .mreza {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--razmak);
 }
 
@@ -115,13 +160,13 @@ body {
 
 .mreza a.kartica:hover,
 .mreza a.kartica:focus-visible {
-  border-color: var(--boja-glavna);
+  border-color: var(--boja-naglasak);
 }
 
 .mreza h2 {
   margin: 0 0 4px;
   font-size: 1.1rem;
-  color: var(--boja-glavna);
+  color: var(--boja-naglasak);
 }
 
 .mreza p {
@@ -135,10 +180,154 @@ body {
   padding: var(--razmak);
 }
 
+a {
+  color: var(--boja-naglasak);
+}
+
+/* Postavke: kartice jedna ispod druge na mobitelu, jedna pored druge na laptopu */
+.mreza-postavki {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 var(--razmak);
+}
+
+section.kartica h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--boja-naglasak);
+}
+
+.polje {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.polje input,
+.polje select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+input,
+select {
+  font: inherit;
+  color: var(--boja-tekst);
+  background: var(--boja-polje);
+  border: 1px solid var(--boja-okvir);
+  border-radius: var(--radijus);
+  padding: 8px 10px;
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--boja-naglasak);
+  outline-offset: 1px;
+}
+
+/* Jedan red: naziv raspona | od [ ] | do [ ] */
+.raspon {
+  display: grid;
+  grid-template-columns: 7.5em 1fr 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.raspon-naziv {
+  font-weight: 600;
+}
+
+.raspon label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.raspon input {
+  width: 100%;
+  min-width: 0;
+}
+
+.akcije {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--razmak);
+}
+
+.dugme {
+  display: inline-block;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--boja-dugme);
+  border: 1px solid var(--boja-dugme);
+  border-radius: var(--radijus);
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.dugme:hover,
+.dugme:focus-visible {
+  background: var(--boja-dugme-hover);
+}
+
+/* Dugme za uvoz je <label> oko skrivenog polja za fajl; i ono treba vidljiv fokus */
+.dugme:focus-within {
+  outline: 2px solid var(--boja-naglasak);
+  outline-offset: 2px;
+}
+
+/* Sakriveno sa ekrana, ali i dalje dostupno tastaturi i čitačima ekrana */
+.skriveno {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.dugme-sporedno {
+  color: var(--boja-naglasak);
+  background: transparent;
+  border-color: var(--boja-okvir);
+}
+
+.dugme-sporedno:hover {
+  background: var(--boja-polje);
+}
+
+.poruka.greska {
+  color: var(--boja-greska);
+}
+
+.poruka.uspjeh {
+  color: var(--boja-uspjeh);
+}
+
+/* Laptop: malo više "zraka" oko sadržaja i postavke u dvije kolone */
+@media (min-width: 900px) {
+  :root {
+    --razmak: 24px;
+  }
+
+  .mreza-postavki {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 /* Mobitel: navigacija ide u zaseban red i dugmad se ravnomjerno rašire */
 @media (max-width: 600px) {
   .navigacija {
     width: 100%;
+    order: 2; /* navigacija ide ispod reda sa nazivom i prekidačem teme */
   }
 
   .navigacija a {
