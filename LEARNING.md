@@ -203,3 +203,30 @@ Funkcija `prikaziGreske` u `js/settings.js` radi oboje i stavi kursor u prvo nei
 
 ### Događaj `input`
 Pokrene se svaki put kad korisnik promijeni sadržaj nekog polja. Koristimo ga da sklonimo staru poruku "Postavke su sačuvane." čim korisnik počne mijenjati polja, da ne izgleda kao da su nove vrijednosti već snimljene.
+
+---
+
+## Keš i upozorenje o standardnom rasponu
+
+### ⚠️ Pravilo: kad nešto ne radi nakon objave, prvo testiraj u incognito prozoru
+Incognito (privatni) prozor ne koristi keš ni spremljene podatke iz običnog prozora. Ako u njemu radi, a u običnom ne, problem je keš u tvom browseru, a ne kod.
+Otvara se sa Ctrl+Shift+N (Chrome, Edge) ili Ctrl+Shift+P (Firefox).
+Primjer iz ovog projekta: nakon popravke Postavki polja su u običnom prozoru i dalje imala strelice, a u incognito prozoru su radila ispravno.
+
+### Keš (cache)
+Browser pamti kopije fajlova (CSS, JS, slike) da ih ne mora svaki put ponovo preuzimati. Zato ponekad, nakon nove objave, i dalje koristi stari fajl.
+
+### Broj verzije u adresi fajla (`?v=4`)
+Dio adrese iza `?` server ne gleda, ali browser ga gleda: `settings.js?v=4` i `settings.js?v=5` su za njega dva različita fajla. Kad povećamo broj, browser mora preuzeti novu kopiju.
+Primjer iz `index.html`:
+```html
+<script src="js/settings.js?v=4"></script>
+```
+Pravilo: kad se promijeni bilo koji CSS ili JS fajl, broj se poveća svuda u `index.html`.
+
+### Prozor za potvrdu (`<dialog>`)
+HTML element za mali prozor iznad stranice. `showModal()` ga otvori i "zaključa" ostatak stranice dok korisnik ne odgovori.
+Primjer iz `js/settings.js`: kad raspon odstupa od standarda, `pitajZaOdstupanje` otvori prozor sa dugmadima **Sačuvaj** i **Odustani**. Dugmad su u `<form method="dialog">`, pa klik zatvori prozor i zapamti koje je dugme kliknuto (`returnValue`). Tipka Esc znači isto što i Odustani.
+
+### Upozorenje naspram greške
+**Greška** blokira: npr. "od" veće od "do" se ne može snimiti. **Upozorenje** samo pita: raspon 50–80 za WSDC nije standardan, ali je dozvoljen ako tab direktor to potvrdi.

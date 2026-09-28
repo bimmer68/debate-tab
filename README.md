@@ -13,6 +13,7 @@ Aplikacija je na **bosanskom jeziku**.
 - Nema vanjskih biblioteka osim ako nisu zaista potrebne. Ako neku uvedeš, objasni zašto.
 - Kod podijeli u male, jasno imenovane fajlove (npr. `js/pairing.js`, `js/tab.js`, `js/storage.js`).
 - Radi na laptopu i na mobitelu.
+- U `index.html` CSS i JS fajlovi imaju broj verzije (npr. `js/settings.js?v=4`). Kad se promijeni bilo koji CSS ili JS fajl, taj broj se poveća svuda, da browseri ne koriste staru kopiju iz keša.
 - Turnir ima najviše **16 timova**, pa performanse nisu problem. Prioritet je jasnoća koda.
 
 ## Kako radimo (obavezno za svaki zadatak)
@@ -57,6 +58,7 @@ Kod kreiranja turnira bira se format. Rasponi bodova su postavke koje se mogu mi
 - **Runda 1:** nasumično parovanje uz poštivanje pravila o klubovima.
 - **Runde 2+:** power pairing, tj. timovi sa sličnim rezultatom idu jedni protiv drugih.
 - Ako broj timova ne odgovara formatu (neparan za WSDC/KP, nije djeljiv sa 4 za BP), aplikacija nudi dodavanje **swing tima** (tim sastavljen od rezervnih govornika, ne ulazi u poredak).
+- **Standardni rasponi bodova:** svaki format ima standardni raspon (WSDC: glavni govor 60–80, replika 30–40; BP: 50–100). Ako tab direktor unese raspon koji odstupa od standarda, aplikacija prikaže upozorenje "Raspon odstupa od standarda za [format] ([raspon]). Sačuvati svejedno?" sa dugmadima **Sačuvaj** / **Odustani**. Ne blokira, samo upozorava. Za Karl Popper standard još nije definisan, pa tu nema upozorenja.
 - **Break:** vlasnik bira koliko timova ide u eliminacije (npr. 4 ili 8). Aplikacija pravi eliminacijski ždrijeb po poretku.
 
 ---
