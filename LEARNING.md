@@ -98,3 +98,78 @@ Fajl `.nojekyll` (prazan) govori GitHub Pages-u da fajlove prikaže tačno onakv
 
 ### Pull request (PR)
 Prijedlog izmjena. Programer napravi izmjene na zasebnoj grani (branch), a vlasnik ih pregleda i, ako mu odgovaraju, spoji (merge) u glavnu verziju.
+
+---
+
+## Faza 2: Postavke turnira
+
+### localStorage
+Mali "ormar" u browseru u koji stranica može spremiti tekst, i koji ostaje i kad se browser zatvori. Svaki podatak ima svoj ključ (ime).
+Primjer iz `js/storage.js`:
+```js
+localStorage.setItem('debateTab.turnir', JSON.stringify(turnir));
+```
+Važno: podaci su samo u **tom** browseru na **tom** računaru. Zato postoji izvoz u fajl (backup).
+
+### JSON
+Način da se objekat zapiše kao običan tekst, pa se može spremiti ili poslati. `JSON.stringify` pretvara objekat u tekst, a `JSON.parse` tekst nazad u objekat.
+Primjer: backup turnira izgleda ovako:
+```json
+{ "verzija": 1, "postavke": { "naziv": "Kup Sarajeva", "format": "bp", "brojRundi": 5 } }
+```
+
+### Izvoz i uvoz (backup)
+**Izvoz** pravi JSON fajl od cijelog turnira i nudi ga za preuzimanje (`izveziTurnir` u `js/storage.js`).
+**Uvoz** čita takav fajl i njime zamijeni trenutni turnir (`procitajFajlTurnira`). Prije zamjene aplikacija pita za potvrdu.
+
+### Forma (`<form>`) i polja
+Forma je skup polja koja korisnik popunjava: `<input>` (tekst ili broj), `<select>` (padajući meni) i `<button>`.
+Primjer iz `js/settings.js`: polje `naziv`, meni `format`, broj `brojRundi` i dugme "Sačuvaj postavke".
+
+### `preventDefault()`
+Kad se forma pošalje, browser bi inače ponovo učitao stranicu. `dogadjaj.preventDefault()` kaže: "nemoj to raditi, ja ću sam obraditi podatke".
+
+### Provjera unosa (validacija)
+Prije spremanja provjeravamo da su podaci smisleni: naziv nije prazan, broj rundi je od 1 do 10, "od" je manje od "do".
+Primjer: funkcija `provjeriPostavke` u `js/settings.js` vraća tekst greške, ili prazan tekst ako je sve u redu.
+
+### `if` (uslov)
+Kod koji se izvrši samo ako je nešto tačno.
+```js
+if (p.naziv === '') {
+  return 'Upiši naziv turnira.';
+}
+```
+
+### Petlja `for ... in`
+Prolazi kroz sve "ladice" jednog objekta. Koristimo je da napravimo polja za svaki raspon bodova (WSDC ima dva: glavni govor i replika, BP samo jedan).
+```js
+for (var kljuc in format.rasponi) { ... }
+```
+
+### `try` / `catch`
+"Pokušaj ovo, a ako pukne, uradi ono." Koristimo ga oko `localStorage` i `JSON.parse`, jer spremanje može biti zabranjeno, a fajl može biti oštećen. Aplikacija tada ne prestane raditi, nego pokaže poruku.
+
+### Callback (funkcija koja se pozove kasnije)
+Čitanje fajla traje malo vremena, pa `procitajFajlTurnira(fajl, gotovo)` dobije funkciju `gotovo` koju pozove kad završi, sa greškom ili sa pročitanim turnirom.
+
+### Siguran HTML (escaping)
+Tekst koji upiše korisnik ne smije se ubaciti u stranicu "sirov", jer bi `<` i `>` browser shvatio kao HTML. Funkcija `sigurnoHtml` u `js/utils.js` ih pretvara u bezopasne znakove (`&lt;`, `&gt;`).
+
+### Zadane vrijednosti (default)
+Vrijednosti koje se koriste dok korisnik ne unese svoje. Primjer: `js/formats.js` kaže da je zadani raspon za BP 50–100. Funkcija `dopuniTurnir` popunjava sve što nedostaje zadanim vrijednostima, pa i stariji backup fajlovi rade.
+
+### `data-` atribut i tema
+HTML elementu možemo dodati svoj podatak, npr. `<html data-tema="svijetla">`. CSS onda kaže: "ako je tema svijetla, koristi ove boje":
+```css
+:root[data-tema="svijetla"] { --boja-pozadina: #f4f6f9; }
+```
+Pošto su sve boje CSS varijable, dovoljno je promijeniti varijable i cijela aplikacija promijeni izgled. Izbor teme pamtimo u `localStorage` (`js/theme.js`).
+
+### CSS Grid
+Način da se elementi poslože u kolone i redove. Na stranici Postavke kartice su na mobitelu jedna ispod druge (`1fr`), a na laptopu jedna pored druge (`1fr 1fr`):
+```css
+@media (min-width: 900px) {
+  .mreza-postavki { grid-template-columns: 1fr 1fr; }
+}
+```

@@ -15,6 +15,9 @@ function prikaziStranicu() {
   var stranica = Stranice[kljuc] || Stranice.nijePronadjena;
 
   document.getElementById('sadrzaj').innerHTML = stranica();
+  if (NakonPrikaza[kljuc]) {
+    NakonPrikaza[kljuc]();
+  }
   oznaciAktivniLink(kljuc);
   window.scrollTo(0, 0);
 }
