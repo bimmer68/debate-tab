@@ -1,0 +1,153 @@
+/* Osnovni izgled aplikacije Debate Tab. */
+
+/* Boje i razmaci na jednom mjestu, da ih je lako mijenjati. */
+:root {
+  --boja-glavna: #1f4e79;
+  --boja-glavna-tamna: #163a5a;
+  --boja-pozadina: #f4f6f9;
+  --boja-kartica: #ffffff;
+  --boja-tekst: #1c1f23;
+  --boja-tekst-blijeda: #5b6470;
+  --boja-okvir: #d9dee5;
+  --razmak: 16px;
+  --radijus: 8px;
+  --sirina-sadrzaja: 960px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--boja-tekst);
+  background: var(--boja-pozadina);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Zaglavlje sa nazivom i navigacijom */
+.zaglavlje {
+  background: var(--boja-glavna);
+  color: #fff;
+  padding: 12px var(--razmak);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+}
+
+.logo {
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navigacija {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.navigacija a {
+  color: #fff;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: var(--radijus);
+}
+
+.navigacija a:hover,
+.navigacija a:focus-visible {
+  background: var(--boja-glavna-tamna);
+}
+
+/* Stranica na kojoj se korisnik trenutno nalazi */
+.navigacija a.aktivna {
+  background: #fff;
+  color: var(--boja-glavna);
+  font-weight: 600;
+}
+
+/* Glavni dio stranice */
+.sadrzaj {
+  flex: 1;
+  width: 100%;
+  max-width: var(--sirina-sadrzaja);
+  margin: 0 auto;
+  padding: var(--razmak);
+}
+
+.sadrzaj h1 {
+  margin-top: 8px;
+  font-size: 1.6rem;
+}
+
+.kartica {
+  background: var(--boja-kartica);
+  border: 1px solid var(--boja-okvir);
+  border-radius: var(--radijus);
+  padding: var(--razmak);
+  margin-bottom: var(--razmak);
+}
+
+.napomena {
+  color: var(--boja-tekst-blijeda);
+}
+
+/* Mreža kartica na početnoj stranici */
+.mreza {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--razmak);
+}
+
+.mreza a.kartica {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  margin-bottom: 0;
+}
+
+.mreza a.kartica:hover,
+.mreza a.kartica:focus-visible {
+  border-color: var(--boja-glavna);
+}
+
+.mreza h2 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  color: var(--boja-glavna);
+}
+
+.mreza p {
+  margin: 0;
+}
+
+.podnozje {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--boja-tekst-blijeda);
+  padding: var(--razmak);
+}
+
+/* Mobitel: navigacija ide u zaseban red i dugmad se ravnomjerno rašire */
+@media (max-width: 600px) {
+  .navigacija {
+    width: 100%;
+  }
+
+  .navigacija a {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+  }
+
+  .sadrzaj h1 {
+    font-size: 1.35rem;
+  }
+}
