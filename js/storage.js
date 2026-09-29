@@ -14,6 +14,8 @@ function zadanePostavke() {
     naziv: '',
     format: 'wsdc',
     brojRundi: 4,
+    // Broj govornika po timu u WSDC-u (1, 3 ili 4). Ostali formati ga ne koriste.
+    velicinaTima: Formati.wsdc.brojGovornika,
     rasponi: zadaniRasponi('wsdc')
   };
 }
@@ -75,6 +77,9 @@ function dopuniTurnir(podaci) {
   }
   if (Number.isInteger(p.brojRundi) && p.brojRundi >= NAJMANJE_RUNDI && p.brojRundi <= NAJVISE_RUNDI) {
     postavke.brojRundi = p.brojRundi;
+  }
+  if (Formati.wsdc.velicineTima.indexOf(p.velicinaTima) !== -1) {
+    postavke.velicinaTima = p.velicinaTima;
   }
   postavke.rasponi = zadaniRasponi(postavke.format);
   var spremljeni = p.rasponi || {};

@@ -25,6 +25,16 @@ function stranicaPostavki() {
           '<select name="format">' + opcijeFormata + '</select>' +
         '</label>' +
         '<p id="opis-formata" class="napomena">' + Formati[p.format].opis + '</p>' +
+        '<div id="izbor-velicine"' + (Formati[p.format].velicineTima ? '' : ' hidden') + '>' +
+          '<label class="polje">Veličina tima (govornika po timu)' +
+            '<select name="velicinaTima" aria-describedby="greska-velicinaTima">' +
+              opcijeVelicine(p.velicinaTima) +
+            '</select>' +
+            mjestoZaGresku('velicinaTima') +
+          '</label>' +
+          '<p class="napomena">Bira se jednom za cijeli turnir. Tim ima tačno onoliko članova ' +
+            'koliko govori, bez rezervi.</p>' +
+        '</div>' +
         '<label class="polje">Broj preliminarnih rundi' +
           poljeZaBroj('brojRundi', p.brojRundi) +
           mjestoZaGresku('brojRundi') +
@@ -62,6 +72,16 @@ function stranicaPostavki() {
       '</form>' +
     '</dialog>'
   );
+}
+
+// Opcije 1, 3 i 4 za veličinu WSDC tima.
+function opcijeVelicine(odabrana) {
+  var html = '';
+  Formati.wsdc.velicineTima.forEach(function (broj) {
+    html += '<option value="' + broj + '"' + (broj === odabrana ? ' selected' : '') + '>' +
+      broj + ' (' + broj + 'v' + broj + ')</option>';
+  });
+  return html;
 }
 
 // Polja "od" i "do" za svaki raspon bodova izabranog formata.
@@ -103,6 +123,8 @@ function pokreniPostavke() {
     var rasponi = spremljeno.format === format ? spremljeno.rasponi : zadaniRasponi(format);
     document.getElementById('polja-raspona').innerHTML = poljaRaspona(format, rasponi);
     document.getElementById('opis-formata').textContent = Formati[format].opis;
+    // Izbor veličine tima postoji samo za WSDC.
+    document.getElementById('izbor-velicine').hidden = !Formati[format].velicineTima;
   });
 
   // Čim korisnik nešto promijeni, stara poruka "Postavke su sačuvane."
@@ -188,6 +210,7 @@ function procitajPostavke(forma) {
     naziv: forma.naziv.value.trim(),
     format: format,
     brojRundi: Number(forma.brojRundi.value.trim()),
+    velicinaTima: Number(forma.velicinaTima.value),
     rasponi: {}
   };
   for (var kljuc in Formati[format].rasponi) {
@@ -218,6 +241,11 @@ function provjeriPostavke(forma) {
     greske.brojRundi = greskaRundi;
   }
 
+  var greskaVelicine = provjeriVelicinuTima(forma);
+  if (greskaVelicine) {
+    greske.velicinaTima = greskaVelicine;
+  }
+
   for (var kljuc in Formati[forma.format.value].rasponi) {
     var poljeOd = forma[kljuc + '-min'];
     var poljeDo = forma[kljuc + '-max'];
@@ -234,6 +262,23 @@ function provjeriPostavke(forma) {
     }
   }
   return greske;
+}
+
+// Veličina WSDC tima se ne smije promijeniti ako bi postojeći timovi
+// ostali sa pogrešnim brojem govornika. Tab direktor ih prvo mora urediti ili obrisati.
+function provjeriVelicinuTima(forma) {
+  var turnir = ucitajTurnir();
+  var nova = Number(forma.velicinaTima.value);
+  if (!Formati[forma.format.value].velicineTima || nova === turnir.postavke.velicinaTima) {
+    return '';
+  }
+  var drugaciji = timoviSaDrugimBrojem(turnir, nova);
+  if (drugaciji === 0) {
+    return '';
+  }
+  return 'Veličina tima se ne može promijeniti na ' + nova + ': ' +
+    tekstBroja(drugaciji, 'tim ima', 'tima imaju', 'timova ima') + ' drugi broj govornika. ' +
+    'Prvo ih uredi ili obriši na stranici Timovi.';
 }
 
 // Greška za jedno polje sa brojem, ili prazan tekst ako je broj ispravan.

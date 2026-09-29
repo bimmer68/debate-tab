@@ -294,3 +294,24 @@ U CSS-u smo dodali pravilo `[hidden] { display: none !important; }`, jer klasa `
 
 ### Čišćenje podataka kod učitavanja
 Funkcija `ocistiUcesnike` u `js/participants.js` provjeri svaki klub, tim i sudiju iz spremljenih podataka ili iz uvezenog fajla i izbaci ono što nije ispravno (npr. tim bez naziva ili dva kluba sa istim id-jem). Ostatak aplikacije tako može vjerovati podacima.
+
+### Postavka koja zavisi od formata (polje koje se pojavi i nestane)
+Izbor "Veličina tima" postoji samo za WSDC. Kad se u Postavkama izabere drugi format, cijeli taj dio dobije atribut `hidden` i nestane; kad se vrati WSDC, ponovo se pojavi.
+Primjer iz `js/settings.js`:
+```js
+document.getElementById('izbor-velicine').hidden = !Formati[format].velicineTima;
+```
+`!` znači "nije": ako format **nema** listu veličina, dio se sakrije.
+
+### `indexOf` (da li je vrijednost na listi dozvoljenih)
+`lista.indexOf(x)` vrati mjesto na kojem je `x` u listi, ili `-1` ako ga nema. Tako provjerimo da li je vrijednost dozvoljena.
+Primjer iz `js/storage.js`: veličina tima iz uvezenog fajla se prihvati samo ako je 1, 3 ili 4:
+```js
+if (Formati.wsdc.velicineTima.indexOf(p.velicinaTima) !== -1) { ... }
+```
+
+### Provjera koja gleda i druge podatke (zaštita od nesklada)
+Neke provjere ne gledaju samo polje, nego i ostatak turnira. Veličina tima se ne smije promijeniti ako bi postojeći timovi ostali sa pogrešnim brojem govornika.
+Funkcija `provjeriVelicinuTima` u `js/settings.js` prebroji takve timove (pomoću `timoviSaDrugimBrojem` iz `js/participants.js`) i, ako ih ima, ne dozvoli spremanje:
+"Veličina tima se ne može promijeniti na 1: 2 tima imaju drugi broj govornika. Prvo ih uredi ili obriši na stranici Timovi."
+Za razliku od upozorenja o rasponu bodova (koje samo pita), ovo je **greška**: podaci bi inače postali neispravni.

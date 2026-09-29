@@ -9,8 +9,14 @@ var Formati = {
     // Zadani rasponi ovog formata su ujedno i standard iz README-a.
     // Ako tab direktor unese nešto drugo, aplikacija upozori (ali ne zabrani).
     imaStandard: true,
-    opis: '2 tima (Propozicija i Opozicija), po 3 govornika, plus replika.',
-    brojGovornika: 3,
+    opis: '2 tima (Propozicija i Opozicija), po 1, 3 ili 4 govornika, plus replika.',
+    // Veličina tima je postavka turnira (bira se jednom za cijeli turnir).
+    // Tim ima tačno onoliko članova koliko govori, bez rezervi.
+    // Replika postoji u svim varijantama: u 1v1 je drži jedini govornik,
+    // a u 3v3 i 4v4 bilo koji govornik osim zadnjeg.
+    // Redoslijed: P1, O1, P2, O2... pa replika Opozicije, pa replika Propozicije.
+    velicineTima: [1, 3, 4],
+    brojGovornika: 3, // zadana veličina tima
     rasponi: {
       glavni: { naziv: 'Glavni govor', min: 60, max: 80 },
       replika: { naziv: 'Replika', min: 30, max: 40 }

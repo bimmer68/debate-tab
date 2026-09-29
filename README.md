@@ -30,9 +30,14 @@ Aplikacija je na **bosanskom jeziku**.
 Kod kreiranja turnira bira se format. Rasponi bodova su postavke koje se mogu mijenjati.
 
 ### World Schools (WSDC)
-- 2 tima (Propozicija i Opozicija), po 3 govornika.
-- Govori: 3 glavna govora po timu + replika (govori je 1. ili 2. govornik).
+- 2 tima (Propozicija i Opozicija).
+- **Veličina tima je postavka turnira:** 1, 3 ili 4 govornika po timu (1v1, 3v3, 4v4). Bira se jednom za cijeli turnir. Zadano je 3.
+- Tim ima tačno onoliko članova koliko govori, bez rezervi.
+- Govori: svaki govornik drži jedan glavni govor + replika po timu.
+- Replika postoji u svim varijantama. U 1v1 je drži jedini govornik. U 3v3 i 4v4 drži je bilo koji govornik osim zadnjeg.
+- Redoslijed: P1, O1, P2, O2... pa replika Opozicije, pa replika Propozicije.
 - Bodovi: glavni govor 60–80, replika 30–40.
+- Ako već postoje timovi sa drugim brojem govornika, veličina tima se ne može promijeniti dok se ti timovi ne urede ili obrišu.
 - Panel sudija (neparan broj). Pobjeđuje tim za koji glasa većina sudija.
 - Poredak timova: pobjede → broj sudijskih glasova (ballots) → ukupni bodovi govornika.
 
