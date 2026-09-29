@@ -91,11 +91,6 @@ function poljeZaBroj(ime, vrijednost) {
     ' value="' + vrijednost + '" aria-describedby="greska-' + ime + '">';
 }
 
-// Prazno mjesto ispod polja u koje se upiše greška za to polje.
-function mjestoZaGresku(ime) {
-  return '<span id="greska-' + ime + '" class="greska-polja" aria-live="polite"></span>';
-}
-
 // Poziva se nakon što se stranica prikaže: povezuje dugmad sa funkcijama.
 function pokreniPostavke() {
   var forma = document.getElementById('forma-postavki');
@@ -256,28 +251,6 @@ function greskaBroja(tekst) {
   return '';
 }
 
-// Upiše svaku grešku pored njenog polja i to polje oboji crveno.
-// Vraća true ako ima barem jedna greška.
-function prikaziGreske(forma, greske) {
-  var prvoNeispravno = null;
-  var polja = forma.querySelectorAll('input[aria-describedby]');
-  for (var i = 0; i < polja.length; i++) {
-    var polje = polja[i];
-    var tekst = greske[polje.name] || '';
-    document.getElementById('greska-' + polje.name).textContent = tekst;
-    if (tekst) {
-      polje.setAttribute('aria-invalid', 'true');
-      prvoNeispravno = prvoNeispravno || polje;
-    } else {
-      polje.removeAttribute('aria-invalid');
-    }
-  }
-  if (prvoNeispravno) {
-    prvoNeispravno.focus(); // korisnik odmah vidi gdje je problem
-  }
-  return prvoNeispravno !== null;
-}
-
 function uveziFajl(fajl) {
   procitajFajlTurnira(fajl, function (greska, turnir) {
     if (greska) {
@@ -294,11 +267,4 @@ function uveziFajl(fajl) {
     prikaziStranicu(); // ponovo nacrtaj stranicu sa uvezenim podacima
     prikaziPoruku('poruka-backup', 'Turnir "' + turnir.postavke.naziv + '" je uvezen.', false);
   });
-}
-
-function prikaziPoruku(id, tekst, jeGreska) {
-  var element = document.getElementById(id);
-  element.textContent = tekst;
-  element.classList.toggle('greska', jeGreska);
-  element.classList.toggle('uspjeh', !jeGreska);
 }

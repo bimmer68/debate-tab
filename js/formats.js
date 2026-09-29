@@ -10,6 +10,7 @@ var Formati = {
     // Ako tab direktor unese nešto drugo, aplikacija upozori (ali ne zabrani).
     imaStandard: true,
     opis: '2 tima (Propozicija i Opozicija), po 3 govornika, plus replika.',
+    brojGovornika: 3,
     rasponi: {
       glavni: { naziv: 'Glavni govor', min: 60, max: 80 },
       replika: { naziv: 'Replika', min: 30, max: 40 }
@@ -20,6 +21,7 @@ var Formati = {
     kratkiNaziv: 'BP',
     imaStandard: true,
     opis: '4 tima (OG, OO, CG, CO), po 2 govornika.',
+    brojGovornika: 2,
     rasponi: {
       govor: { naziv: 'Govor', min: 50, max: 100 }
     }
@@ -30,6 +32,7 @@ var Formati = {
     // Standard još nije definisan, pa nema upozorenja o odstupanju.
     imaStandard: false,
     opis: '2 tima (Afirmacija i Negacija), po 3 govornika.',
+    brojGovornika: 3,
     // Pretpostavka: isti raspon kao glavni govor u WSDC-u.
     // Vlasnik projekta treba potvrditi, a do tada se može promijeniti u postavkama.
     napomena: 'Raspon 60–80 je privremena pretpostavka dok se ne potvrdi.',

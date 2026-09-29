@@ -230,3 +230,67 @@ Primjer iz `js/settings.js`: kad raspon odstupa od standarda, `pitajZaOdstupanje
 
 ### Upozorenje naspram greške
 **Greška** blokira: npr. "od" veće od "do" se ne može snimiti. **Upozorenje** samo pita: raspon 50–80 za WSDC nije standardan, ali je dozvoljen ako tab direktor to potvrdi.
+
+---
+
+## Faza 3: Unos učesnika
+
+### Niz (lista, array)
+Više vrijednosti poredanih jedna za drugom, u uglastim zagradama `[ ]`. Svaka ima svoj redni broj (počinje od 0).
+Primjer iz `js/participants.js`: svi timovi turnira su jedan niz:
+```js
+timovi: [
+  { id: 't1', naziv: 'Mostar A', klubId: 'k1', govornici: [ ... ] },
+  { id: 't2', naziv: 'Mostar B', klubId: 'k1', govornici: [ ... ] }
+]
+```
+`turnir.timovi.length` je broj timova, a `turnir.timovi.push(tim)` dodaje novi tim na kraj.
+
+### Id (jedinstvena oznaka)
+Svaki klub, tim, govornik i sudija dobije oznaku koju niko drugi nema: `k1`, `t3`, `g12`, `s2`. Tim pamti svoj klub preko id-ja (`klubId: 'k1'`), a ne preko naziva.
+Zašto: ako se klub preimenuje, timovi i dalje znaju kojem klubu pripadaju. Isto će važiti za parove i balote u kasnijim fazama.
+Primjer: funkcija `noviId('t', turnir.timovi)` nađe najveći postojeći broj i vrati sljedeći (npr. `'t7'`).
+
+### `forEach`, `map`, `filter`
+Načini da se prođe kroz niz, kraći od petlje `for`:
+- `forEach` uradi nešto za svaku stavku (npr. nacrta red u listi),
+- `map` napravi novi niz od starog (npr. od govornika napravi niz imena),
+- `filter` zadrži samo stavke koje ispunjavaju uslov.
+
+Primjer iz `js/participants.js`, brisanje = zadrži sve osim onoga sa tim id-jem:
+```js
+return lista.filter(function (x) { return x.id !== id; });
+```
+
+### Sortiranje po abecedi (`sort` i `localeCompare`)
+`sort` poreda niz, a `localeCompare(..., 'bs')` poredi dva teksta po pravilima bosanskog jezika (da `Č` i `Š` budu na pravom mjestu).
+Primjer: funkcija `poredajPoImenu` u `js/teams.js`. Prvo napravi kopiju niza (`slice()`), da se redoslijed u spremljenim podacima ne mijenja.
+
+### Delegiranje događaja (jedan osluškivač za mnogo dugmadi)
+Umjesto da svako dugme "Uredi" i "Obriši" dobije svoj osluškivač, stavimo jedan na cijelu listu. Kad se klikne bilo gdje u listi, provjerimo koje je dugme kliknuto.
+Primjer iz `js/teams.js`:
+```js
+document.getElementById('lista-timova').addEventListener('click', function (dogadjaj) {
+  var dugme = dogadjaj.target.closest('button[data-akcija]');
+  ...
+});
+```
+Prednost: lista se ponovo crta nakon svake izmjene, a osluškivač i dalje radi, jer je na listi, a ne na starim dugmadima koja su nestala.
+
+### `data-` atributi u JavaScriptu (`dataset`)
+Dugme u sebi nosi podatke: `<button data-akcija="obrisi" data-id="t3">`. JavaScript ih čita kao `dugme.dataset.akcija` i `dugme.dataset.id`. Tako znamo šta dugme radi i s kojim timom.
+
+### Ista forma za dodavanje i uređivanje
+Varijabla `uredjeniTimId` pamti koji tim se uređuje. Kad je prazna, forma dodaje novi tim (dugme "Dodaj tim"). Kad se klikne "Uredi", forma se popuni podacima tog tima, dugme postane "Sačuvaj izmjene" i pojavi se "Odustani".
+Funkcija `postaviNacinForme` u `js/teams.js` mijenja tekst dugmadi.
+
+### `confirm()` (pitanje prije brisanja)
+Browserov mali prozor sa pitanjem i dugmadima OK / Cancel. Vraća `true` ako je korisnik potvrdio.
+Primjer: `confirm('Obrisati tim "Mostar A" i njegove govornike?')`. Brisanje se ne može poništiti, pa uvijek pitamo.
+
+### Atribut `hidden`
+HTML atribut koji sakrije element. Dugme "Odustani" ima `hidden` dok se ništa ne uređuje. U JavaScriptu: `dugme.hidden = false` ga prikaže.
+U CSS-u smo dodali pravilo `[hidden] { display: none !important; }`, jer klasa `.dugme` inače "pobijedi" atribut i dugme bi ostalo vidljivo. `!important` znači: ovo pravilo ima prednost nad ostalima.
+
+### Čišćenje podataka kod učitavanja
+Funkcija `ocistiUcesnike` u `js/participants.js` provjeri svaki klub, tim i sudiju iz spremljenih podataka ili iz uvezenog fajla i izbaci ono što nije ispravno (npr. tim bez naziva ili dva kluba sa istim id-jem). Ostatak aplikacije tako može vjerovati podacima.

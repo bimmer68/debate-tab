@@ -16,6 +16,7 @@
   --boja-okvir: #323842;
   --boja-greska: #ff8a80;
   --boja-uspjeh: #7ed69a;
+  --boja-upozorenje: #f2c46d;
   --razmak: 16px;
   --radijus: 8px;
   --sirina-sadrzaja: 1400px;
@@ -37,11 +38,18 @@
   --boja-okvir: #d9dee5;
   --boja-greska: #b3261e;
   --boja-uspjeh: #1e7a3c;
+  --boja-upozorenje: #8a5a00;
   color-scheme: light;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Element sa atributom hidden je uvijek sakriven,
+   i kad mu neka klasa (npr. .dugme) daje drugačiji display. */
+[hidden] {
+  display: none !important;
 }
 
 body {
@@ -269,7 +277,8 @@ select:focus-visible {
   display: none;
 }
 
-input[aria-invalid="true"] {
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
   border-color: var(--boja-greska);
 }
 
@@ -356,6 +365,83 @@ input[aria-invalid="true"] {
   margin-bottom: 0;
 }
 
+/* Timovi i Sudije: forma i lista jedna ispod druge na mobitelu,
+   a na laptopu uska kolona lijevo i šira desno */
+.mreza-ucesnika {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 var(--razmak);
+  align-items: start;
+}
+
+/* Polja u formi tima: jedno ispod drugog na mobitelu, više u redu na širem ekranu */
+.mreza-polja {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0 12px;
+}
+
+/* Lista klubova, timova ili sudija */
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stavka {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--boja-okvir);
+}
+
+/* Stavka koja se upravo uređuje u formi */
+.stavka.uredjuje-se {
+  border-left: 3px solid var(--boja-naglasak);
+  padding-left: 10px;
+}
+
+.stavka-tekst {
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere; /* dugo ime bez razmaka ne izlazi iz ekrana */
+}
+
+.stavka-detalji {
+  font-size: 0.95rem;
+}
+
+.stavka-akcije {
+  display: flex;
+  gap: 8px;
+}
+
+.dugme-malo {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+.dugme-opasno {
+  color: var(--boja-greska);
+  background: transparent;
+  border-color: var(--boja-okvir);
+}
+
+.dugme-opasno:hover,
+.dugme-opasno:focus-visible {
+  background: var(--boja-polje);
+  border-color: var(--boja-greska);
+}
+
+.upozorenje {
+  display: block;
+  color: var(--boja-upozorenje);
+  font-size: 0.9rem;
+}
+
 /* Laptop: malo više "zraka" oko sadržaja i postavke u dvije kolone */
 @media (min-width: 900px) {
   :root {
@@ -364,6 +450,10 @@ input[aria-invalid="true"] {
 
   .mreza-postavki {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .mreza-ucesnika {
+    grid-template-columns: 1fr 2fr;
   }
 }
 
