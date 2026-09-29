@@ -19,13 +19,9 @@ var Stranice = {
 
   postavke: stranicaPostavki,
 
-  timovi: function () {
-    return uIzradi('Timovi', 'Ovdje će se unositi klubovi i timovi sa govornicima.', 3);
-  },
+  timovi: stranicaTimova,
 
-  sudije: function () {
-    return uIzradi('Sudije', 'Ovdje će se unositi sudije i klub kojem pripadaju.', 3);
-  },
+  sudije: stranicaSudija,
 
   runde: function () {
     return uIzradi('Runde', 'Ovdje će se praviti parovi za svaku rundu i unositi balote.', 4);
@@ -46,7 +42,9 @@ var Stranice = {
 // Neke stranice, nakon što se prikažu, trebaju povezati dugmad i polja
 // sa funkcijama. Ovdje piše koja funkcija se tada pokreće.
 var NakonPrikaza = {
-  postavke: pokreniPostavke
+  postavke: pokreniPostavke,
+  timovi: pokreniTimove,
+  sudije: pokreniSudije
 };
 
 // Jedna pločica (kartica) na početnoj stranici.
