@@ -23,9 +23,7 @@ var Stranice = {
 
   sudije: stranicaSudija,
 
-  runde: function () {
-    return uIzradi('Runde', 'Ovdje će se praviti parovi za svaku rundu i unositi balote.', 4);
-  },
+  runde: stranicaRundi,
 
   tab: function () {
     return uIzradi('Tab', 'Ovdje će se prikazivati poredak timova i govornika.', 6);
@@ -44,7 +42,8 @@ var Stranice = {
 var NakonPrikaza = {
   postavke: pokreniPostavke,
   timovi: pokreniTimove,
-  sudije: pokreniSudije
+  sudije: pokreniSudije,
+  runde: pokreniRunde
 };
 
 // Jedna pločica (kartica) na početnoj stranici.

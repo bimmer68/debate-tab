@@ -1,6 +1,6 @@
 // Spremanje turnira u browser (localStorage) i backup u JSON fajl.
-// Cijeli turnir je jedan objekat: postavke, klubovi, timovi i sudije
-// (u kasnijim fazama i runde). Izvoz/uvoz automatski obuhvata sve.
+// Cijeli turnir je jedan objekat: postavke, klubovi, timovi, sudije i runde.
+// Izvoz/uvoz automatski obuhvata sve.
 
 var KLJUC_TURNIRA = 'debateTab.turnir';
 var VERZIJA_PODATAKA = 1;
@@ -26,7 +26,8 @@ function noviTurnir() {
     postavke: zadanePostavke(),
     klubovi: [],
     timovi: [],
-    sudije: []
+    sudije: [],
+    runde: []
   };
 }
 
@@ -95,6 +96,8 @@ function dopuniTurnir(podaci) {
   turnir.klubovi = ucesnici.klubovi;
   turnir.timovi = ucesnici.timovi;
   turnir.sudije = ucesnici.sudije;
+  // Runde: zadrži samo ispravne (vidi js/rounds.js).
+  turnir.runde = ocistiRunde(podaci);
 
   turnir.verzija = VERZIJA_PODATAKA;
   return turnir;

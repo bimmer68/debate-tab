@@ -442,6 +442,163 @@ select[aria-invalid="true"] {
   font-size: 0.9rem;
 }
 
+/* ---- Runde ---- */
+
+/* Oznaka stanja runde pored naslova: Nacrt / Objavljena */
+.status {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border: 1px solid var(--boja-okvir);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--boja-tekst-blijeda);
+  vertical-align: middle;
+}
+
+.status-nacrt {
+  color: var(--boja-upozorenje);
+  border-color: var(--boja-upozorenje);
+}
+
+.status-objavljena {
+  color: var(--boja-uspjeh);
+  border-color: var(--boja-uspjeh);
+}
+
+/* Okvir sa upozorenjem i dugmetom (swing timovi, premalo sudija, zastarjeli nacrt) */
+.upozorenje-okvir {
+  border: 1px solid var(--boja-upozorenje);
+  border-left-width: 4px;
+  border-radius: var(--radijus);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.upozorenje-okvir ul {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.upozorenje-okvir .akcije {
+  margin: 10px 0 0;
+}
+
+.polje-panela select {
+  max-width: 16rem;
+}
+
+.dugme:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Crvena oznaka: timovi iz istog kluba ili sudija sa konfliktom */
+.oznaka-crvena {
+  color: var(--boja-greska);
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+/* Sobe: jedna ispod druge na mobitelu, više u redu na širem ekranu */
+.mreza-soba {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--razmak);
+  margin-bottom: var(--razmak);
+}
+
+.soba {
+  background: var(--boja-kartica);
+  border: 1px solid var(--boja-okvir);
+  border-radius: var(--radijus);
+  padding: 12px var(--razmak) var(--razmak);
+  min-width: 0;
+}
+
+.soba-problem {
+  border-color: var(--boja-greska);
+  border-left-width: 4px;
+}
+
+.soba h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.pozicije {
+  margin: 0 0 12px;
+}
+
+.pozicije dt,
+.panel-naslov {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--boja-tekst-blijeda);
+  margin-top: 6px;
+}
+
+.pozicije dd {
+  margin: 2px 0 0;
+}
+
+/* Čip: jedan tim ili sudija. U nacrtu je dugme za zamjenu. */
+.cipovi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.cip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  font: inherit;
+  text-align: left;
+  color: var(--boja-tekst);
+  background: var(--boja-polje);
+  border: 1px solid var(--boja-okvir);
+  border-radius: var(--radijus);
+  padding: 6px 10px;
+  overflow-wrap: anywhere;
+}
+
+button.cip {
+  cursor: pointer;
+}
+
+button.cip:hover,
+button.cip:focus-visible {
+  border-color: var(--boja-naglasak);
+}
+
+.cip-ime {
+  font-weight: 600;
+}
+
+.cip-detalj {
+  font-size: 0.85rem;
+  color: var(--boja-tekst-blijeda);
+}
+
+.cip-konflikt {
+  border-color: var(--boja-greska);
+}
+
+.cip-konflikt .cip-detalj {
+  color: var(--boja-greska);
+  font-weight: 600;
+}
+
+/* Tim ili sudija kliknut prvi, čeka drugi klik za zamjenu */
+.cip-odabran {
+  outline: 3px solid var(--boja-naglasak);
+  outline-offset: 1px;
+}
+
 /* Laptop: malo više "zraka" oko sadržaja i postavke u dvije kolone */
 @media (min-width: 900px) {
   :root {

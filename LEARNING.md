@@ -315,3 +315,58 @@ Neke provjere ne gledaju samo polje, nego i ostatak turnira. Veličina tima se n
 Funkcija `provjeriVelicinuTima` u `js/settings.js` prebroji takve timove (pomoću `timoviSaDrugimBrojem` iz `js/participants.js`) i, ako ih ima, ne dozvoli spremanje:
 "Veličina tima se ne može promijeniti na 1: 2 tima imaju drugi broj govornika. Prvo ih uredi ili obriši na stranici Timovi."
 Za razliku od upozorenja o rasponu bodova (koje samo pita), ovo je **greška**: podaci bi inače postali neispravni.
+
+---
+
+## Faza 4: Parovanje runde 1
+
+### Algoritam
+Tačan spisak koraka koji računar prati da riješi neki zadatak, kao recept.
+Primjer: parovanje u `js/pairing.js` je algoritam: "promiješaj timove, podijeli ih u sobe, popravi zamjenama, ponovi 100 puta, zadrži najbolje".
+
+### Nasumičnost (`Math.random`) i miješanje liste
+`Math.random()` daje nasumičan broj između 0 i 1. Pomoću njega funkcija `promijesaj` u `js/pairing.js` miješa listu kao špil karata (tzv. Fisher–Yates miješanje): ide od kraja liste i svaku stavku zamijeni sa nasumično izabranom stavkom ispred nje.
+```js
+var j = Math.floor(Math.random() * (i + 1));
+```
+`Math.floor` odsiječe decimale (3.7 postaje 3), pa je `j` cijeli broj od 0 do `i`.
+
+### Pohlepni (greedy) postupak
+Postupak koji u svakom koraku uzme ono što mu u tom trenutku najviše odgovara, bez gledanja unaprijed. Brz je, ali ne mora dati najbolji rezultat.
+Primjer: `rasporediTimove` sobi dodaje prvi tim iz drugog kluba koji nađe.
+
+### Popravljanje zamjenama (lokalna pretraga)
+Kad imamo neki raspored, probamo male izmjene (zamijeni dva tima) i zadržimo samo one koje ga poboljšaju. Kad nijedna zamjena više ne pomaže, stanemo.
+Primjer: `poboljsajZamjenama` u `js/pairing.js`. Ista funkcija se koristi i za timove i za sudije; razlikuje se samo "kazna" (šta se broji kao problem).
+
+### Kazna (funkcija koja broji probleme)
+Da bi računar mogao reći koji raspored je bolji, svakom rasporedu damo broj: koliko problema ima. Manje je bolje, 0 je savršeno.
+Primjer: `parovaIzIstogKluba(soba)` broji parove timova iz istog kluba u sobi, a `konfliktaUPanelu` sudije koje sude timu iz svog kluba.
+
+### Funkcija kao parametar
+Funkciji možemo predati drugu funkciju, pa ona odluči kad će je pozvati.
+Primjer: `poboljsajZamjenama(sobe, parovaIzIstogKluba)` – funkcija za zamjene ne zna šta je "problem", nego pita funkciju koju smo joj dali.
+
+### Petlja `while`
+Ponavlja kod **dok god** je uslov tačan. Koristimo je kad ne znamo unaprijed koliko puta treba ponoviti.
+```js
+while (bilo) { ... }   // ponavljaj dok god je neka zamjena pomogla
+```
+
+### Ostatak dijeljenja (`%`)
+`13 % 4` je `1` (13 = 3 × 4 + 1). Pomoću njega znamo da li je broj timova djeljiv sa brojem timova u sobi i koliko swing timova treba.
+Primjer iz `js/rounds.js`: BP sa 13 timova ima ostatak 1, pa treba 4 − 1 = 3 swing tima.
+
+### Stanje (status)
+Podatak koji kaže u kojoj je fazi nešto: runda je `'nacrt'` ili `'objavljena'`. Od stanja zavisi šta je dozvoljeno: nacrt se može mijenjati, a tim iz objavljene runde se ne može obrisati.
+Primjer: `runda.status = 'objavljena';` u `js/rounds-page.js`.
+
+### Zastarjeli podaci
+Nacrt je napravljen od timova koji su postojali u tom trenutku. Ako se kasnije doda ili obriše tim, nacrt više ne odgovara stvarnosti. Funkcija `razloziZastarjelosti` to otkrije i aplikacija traži da se nacrt ponovo generiše.
+
+### "Klik pa klik" zamjena i `aria-pressed`
+Prvi klik odabere tim (pamti se u varijabli `odabranoZaZamjenu`), drugi klik ga zamijeni sa drugim timom. Radi i na mobitelu, gdje prevlačenje mišem nije praktično.
+Atribut `aria-pressed="true"` kaže čitaču ekrana da je dugme trenutno "uključeno" (odabrano).
+
+### Onemogućeno dugme (`disabled`)
+`<button disabled>` se ne može kliknuti. Dugme "Generiši parove" je onemogućeno dok broj timova ne odgovara formatu.

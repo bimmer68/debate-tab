@@ -22,7 +22,8 @@ function stranicaPostavki() {
           mjestoZaGresku('naziv') +
         '</label>' +
         '<label class="polje">Format' +
-          '<select name="format">' + opcijeFormata + '</select>' +
+          '<select name="format" aria-describedby="greska-format">' + opcijeFormata + '</select>' +
+          mjestoZaGresku('format') +
         '</label>' +
         '<p id="opis-formata" class="napomena">' + Formati[p.format].opis + '</p>' +
         '<div id="izbor-velicine"' + (Formati[p.format].velicineTima ? '' : ' hidden') + '>' +
@@ -182,6 +183,8 @@ function spremiFormuPostavki(forma) {
 function snimiPostavke(postavke) {
   var turnir = ucitajTurnir();
   turnir.postavke = postavke;
+  // Swing timovi uvijek imaju onoliko govornika koliko traži format.
+  imenujSwingTimove(turnir);
   if (sacuvajTurnir(turnir)) {
     prikaziPoruku('poruka-postavki', 'Postavke su sačuvane.', false);
   } else {
@@ -241,6 +244,11 @@ function provjeriPostavke(forma) {
     greske.brojRundi = greskaRundi;
   }
 
+  var greskaFormata = provjeriPromjenuFormata(forma);
+  if (greskaFormata) {
+    greske.format = greskaFormata;
+  }
+
   var greskaVelicine = provjeriVelicinuTima(forma);
   if (greskaVelicine) {
     greske.velicinaTima = greskaVelicine;
@@ -262,6 +270,21 @@ function provjeriPostavke(forma) {
     }
   }
   return greske;
+}
+
+// Format i veličina tima se ne smiju promijeniti dok postoji runda,
+// jer bi sobe imale pogrešan broj timova ili govornika.
+function provjeriPromjenuFormata(forma) {
+  var turnir = ucitajTurnir();
+  var p = turnir.postavke;
+  var novaVelicina = Number(forma.velicinaTima.value);
+  var promijenjeno = forma.format.value !== p.format ||
+    (Formati[p.format].velicineTima && novaVelicina !== p.velicinaTima);
+  if (!promijenjeno || turnir.runde.length === 0) {
+    return '';
+  }
+  return 'Format i veličina tima se ne mogu mijenjati dok postoji runda. ' +
+    'Prvo obriši nacrt runde na stranici Runde (objavljenu rundu prvo vrati u nacrt).';
 }
 
 // Veličina WSDC tima se ne smije promijeniti ako bi postojeći timovi

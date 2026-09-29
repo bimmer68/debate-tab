@@ -17,6 +17,9 @@ var Formati = {
     // Redoslijed: P1, O1, P2, O2... pa replika Opozicije, pa replika Propozicije.
     velicineTima: [1, 3, 4],
     brojGovornika: 3, // zadana veličina tima
+    // Koliko timova je u jednoj sobi i kako se zovu njihove pozicije (redom).
+    timovaPoSobi: 2,
+    pozicije: ['Propozicija', 'Opozicija'],
     rasponi: {
       glavni: { naziv: 'Glavni govor', min: 60, max: 80 },
       replika: { naziv: 'Replika', min: 30, max: 40 }
@@ -28,6 +31,8 @@ var Formati = {
     imaStandard: true,
     opis: '4 tima (OG, OO, CG, CO), po 2 govornika.',
     brojGovornika: 2,
+    timovaPoSobi: 4,
+    pozicije: ['Otvaranje Vlade (OG)', 'Otvaranje Opozicije (OO)', 'Zatvaranje Vlade (CG)', 'Zatvaranje Opozicije (CO)'],
     rasponi: {
       govor: { naziv: 'Govor', min: 50, max: 100 }
     }
@@ -39,6 +44,8 @@ var Formati = {
     imaStandard: false,
     opis: '2 tima (Afirmacija i Negacija), po 3 govornika.',
     brojGovornika: 3,
+    timovaPoSobi: 2,
+    pozicije: ['Afirmacija', 'Negacija'],
     // Pretpostavka: isti raspon kao glavni govor u WSDC-u.
     // Vlasnik projekta treba potvrditi, a do tada se može promijeniti u postavkama.
     napomena: 'Raspon 60–80 je privremena pretpostavka dok se ne potvrdi.',
