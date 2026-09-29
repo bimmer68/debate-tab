@@ -7,6 +7,8 @@
 //               govornici: [{ id: 'g1', ime: 'Ana' }, { id: 'g2', ime: 'Marko' }] }]
 //   sudije:  [{ id: 's1', ime: 'Lejla', klubId: 'k1' }]   (klubId '' = nezavisni sudija)
 //
+// Swing tim (vidi rounds.js) je tim sa oznakom swing: true i bez kluba.
+//
 // Svaki učesnik ima svoj id. Kasnije faze (parovi, balote) pamte samo id,
 // pa promjena imena ne kvari ništa što je već uneseno.
 
@@ -61,8 +63,9 @@ function brojGovornikaZa(postavke) {
 }
 
 // Koliko timova nema tačno toliko govornika.
+// Swing timovi se ne broje: njihovi govornici se sami prilagode veličini tima.
 function timoviSaDrugimBrojem(turnir, broj) {
-  return turnir.timovi.filter(function (t) { return t.govornici.length !== broj; }).length;
+  return turnir.timovi.filter(function (t) { return !t.swing && t.govornici.length !== broj; }).length;
 }
 
 // "  Gimnazija   MOSTAR " i "gimnazija mostar" se smatraju istim imenom.
@@ -208,12 +211,24 @@ function obrisiKlub(turnir, id) {
   return '';
 }
 
+// Tim ili sudija iz objavljene runde se ne može obrisati.
+// Vraća tekst greške, ili prazan tekst ako je obrisan.
 function obrisiTim(turnir, id) {
+  var runda = objavljenaRundaSa(turnir, 'timovi', id);
+  if (runda) {
+    return 'Tim se ne može obrisati jer igra u objavljenoj rundi ' + runda.broj + '.';
+  }
   turnir.timovi = ukloniPoId(turnir.timovi, id);
+  return '';
 }
 
 function obrisiSudiju(turnir, id) {
+  var runda = objavljenaRundaSa(turnir, 'sudije', id);
+  if (runda) {
+    return 'Sudija se ne može obrisati jer sudi u objavljenoj rundi ' + runda.broj + '.';
+  }
   turnir.sudije = ukloniPoId(turnir.sudije, id);
+  return '';
 }
 
 // ---- Čišćenje podataka ----
@@ -243,7 +258,12 @@ function ocistiUcesnike(podaci) {
       vidjeniGovornici.push(g.id);
       return { id: g.id, ime: g.ime };
     });
-    return { id: t.id, naziv: t.naziv, klubId: postojeciKlub(t.klubId), govornici: govornici };
+    var tim = { id: t.id, naziv: t.naziv, klubId: postojeciKlub(t.klubId), govornici: govornici };
+    if (t.swing === true) {
+      tim.swing = true;
+      tim.klubId = ''; // swing tim nikad nema klub
+    }
+    return tim;
   });
 
   var sudije = ocistiListu(podaci.sudije, function (s) {

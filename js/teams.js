@@ -50,6 +50,7 @@ function stranicaTimova() {
           '<p id="napomena-tima" class="napomena" hidden></p>' +
           dugmadForme('tima', 'Dodaj tim') +
         '</form>' +
+        '<p id="napomena-swing" class="napomena" hidden></p>' +
         '<div id="lista-timova"></div>' +
       '</section>' +
     '</div>'
@@ -155,8 +156,15 @@ function osvjeziTimove(turnir) {
   meni.innerHTML = opcijeKlubova(turnir, odabrani,
     turnir.klubovi.length ? '— izaberi klub —' : '— prvo dodaj klub —');
 
+  // Swing timovi se ne prikazuju u listi i ne broje se u najviše 16 timova.
+  // Njima se upravlja na stranici Runde.
+  var swing = swingTimovi(turnir).length;
   document.getElementById('naslov-timova').textContent =
-    'Timovi (' + turnir.timovi.length + ' / ' + NAJVISE_TIMOVA + ')';
+    'Timovi (' + praviTimovi(turnir).length + ' / ' + NAJVISE_TIMOVA + ')';
+  var napomenaSwing = document.getElementById('napomena-swing');
+  napomenaSwing.hidden = swing === 0;
+  napomenaSwing.textContent = 'Uz ove timove postoji i ' +
+    tekstBroja(swing, 'swing tim', 'swing tima', 'swing timova') + ' (dodaje se i uklanja na stranici Runde).';
   document.getElementById('lista-klubova').innerHTML = listaKlubova(turnir);
   document.getElementById('lista-timova').innerHTML = listaTimova(turnir);
 }
@@ -180,12 +188,12 @@ function listaKlubova(turnir) {
 }
 
 function listaTimova(turnir) {
-  if (turnir.timovi.length === 0) {
+  if (praviTimovi(turnir).length === 0) {
     return '<p class="napomena">Još nema timova.</p>';
   }
   var potrebno = brojGovornika(turnir);
   var html = '<ul class="lista">';
-  poredajPoImenu(turnir.timovi, 'naziv').forEach(function (tim) {
+  poredajPoImenu(praviTimovi(turnir), 'naziv').forEach(function (tim) {
     var imena = tim.govornici.map(function (g) { return sigurnoHtml(g.ime); }).join(', ');
     var upozorenja = '';
     if (!tim.klubId) {
@@ -327,7 +335,7 @@ function spremiTim(forma) {
   var turnir = ucitajTurnir();
   var bioNov = uredjeniTimId === '';
 
-  if (bioNov && turnir.timovi.length >= NAJVISE_TIMOVA) {
+  if (bioNov && praviTimovi(turnir).length >= NAJVISE_TIMOVA) {
     prikaziPoruku('poruka-tima', 'Turnir već ima ' + NAJVISE_TIMOVA + ' timova, što je najviše.', true);
     return;
   }
@@ -393,10 +401,17 @@ function zavrsiUredjivanjeTima() {
 function obrisiTimKlikom(id) {
   var turnir = ucitajTurnir();
   var tim = nadjiPoId(turnir.timovi, id);
-  if (!tim || !confirm('Obrisati tim "' + tim.naziv + '" i njegove govornike?')) {
+  if (!tim) {
     return;
   }
-  obrisiTim(turnir, id);
+  var greska = obrisiTim(turnir, id);
+  if (greska) {
+    prikaziPoruku('poruka-tima', greska, true);
+    return;
+  }
+  if (!confirm('Obrisati tim "' + tim.naziv + '" i njegove govornike?')) {
+    return;
+  }
   sacuvajTurnir(turnir);
   if (id === uredjeniTimId) {
     zavrsiUredjivanjeTima();

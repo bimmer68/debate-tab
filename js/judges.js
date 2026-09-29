@@ -143,10 +143,17 @@ function zavrsiUredjivanjeSudije() {
 function obrisiSudijuKlikom(id) {
   var turnir = ucitajTurnir();
   var sudija = nadjiPoId(turnir.sudije, id);
-  if (!sudija || !confirm('Obrisati sudiju "' + sudija.ime + '"?')) {
+  if (!sudija) {
     return;
   }
-  obrisiSudiju(turnir, id);
+  var greska = obrisiSudiju(turnir, id);
+  if (greska) {
+    prikaziPoruku('poruka-sudije', greska, true);
+    return;
+  }
+  if (!confirm('Obrisati sudiju "' + sudija.ime + '"?')) {
+    return;
+  }
   sacuvajTurnir(turnir);
   if (id === uredjeniSudijaId) {
     zavrsiUredjivanjeSudije();
