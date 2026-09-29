@@ -50,8 +50,19 @@ function nazivKluba(turnir, klubId) {
 }
 
 // Koliko govornika ima tim u formatu iz postavki.
+// Kod WSDC-a to bira tab direktor (postavka "Veličina tima").
 function brojGovornika(turnir) {
-  return Formati[turnir.postavke.format].brojGovornika;
+  return brojGovornikaZa(turnir.postavke);
+}
+
+function brojGovornikaZa(postavke) {
+  var format = Formati[postavke.format];
+  return format.velicineTima ? postavke.velicinaTima : format.brojGovornika;
+}
+
+// Koliko timova nema tačno toliko govornika.
+function timoviSaDrugimBrojem(turnir, broj) {
+  return turnir.timovi.filter(function (t) { return t.govornici.length !== broj; }).length;
 }
 
 // "  Gimnazija   MOSTAR " i "gimnazija mostar" se smatraju istim imenom.

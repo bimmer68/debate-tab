@@ -33,7 +33,7 @@ function stranicaTimova() {
       '<section class="kartica">' +
         '<h2 id="naslov-timova"></h2>' +
         '<p class="napomena">Format: ' + Formati[turnir.postavke.format].naziv + ', ' +
-          brojGovornika(turnir) + ' govornika po timu. Najviše ' + NAJVISE_TIMOVA + ' timova.</p>' +
+          tekstBroja(brojGovornika(turnir), 'govornik', 'govornika', 'govornika') + ' po timu. Najviše ' + NAJVISE_TIMOVA + ' timova.</p>' +
         '<form id="forma-tima" novalidate>' +
           '<div class="mreza-polja">' +
             '<label class="polje">Naziv tima' +
