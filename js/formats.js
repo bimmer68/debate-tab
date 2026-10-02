@@ -20,6 +20,9 @@ var Formati = {
     // Koliko timova je u jednoj sobi i kako se zovu njihove pozicije (redom).
     timovaPoSobi: 2,
     pozicije: ['Propozicija', 'Opozicija'],
+    // Kratke oznake pozicija za govore na balotu: P1, O1, P2...
+    oznake: ['P', 'O'],
+    imaRepliku: true,
     rasponi: {
       glavni: { naziv: 'Glavni govor', min: 60, max: 80 },
       replika: { naziv: 'Replika', min: 30, max: 40 }
@@ -33,6 +36,8 @@ var Formati = {
     brojGovornika: 2,
     timovaPoSobi: 4,
     pozicije: ['Otvaranje Vlade (OG)', 'Otvaranje Opozicije (OO)', 'Zatvaranje Vlade (CG)', 'Zatvaranje Opozicije (CO)'],
+    oznake: ['OG', 'OO', 'CG', 'CO'],
+    imaRepliku: false,
     rasponi: {
       govor: { naziv: 'Govor', min: 50, max: 100 }
     }
@@ -40,17 +45,17 @@ var Formati = {
   kp: {
     naziv: 'Karl Popper',
     kratkiNaziv: 'Karl Popper',
-    // Standard još nije definisan, pa nema upozorenja o odstupanju.
-    imaStandard: false,
-    opis: '2 tima (Afirmacija i Negacija), po 3 govornika.',
+    imaStandard: true,
+    opis: '2 tima (Afirmacija i Negacija), po 3 govornika, bez replike.',
     brojGovornika: 3,
     timovaPoSobi: 2,
     pozicije: ['Afirmacija', 'Negacija'],
-    // Pretpostavka: isti raspon kao glavni govor u WSDC-u.
-    // Vlasnik projekta treba potvrditi, a do tada se može promijeniti u postavkama.
-    napomena: 'Raspon 60–80 je privremena pretpostavka dok se ne potvrdi.',
+    oznake: ['A', 'N'],
+    imaRepliku: false,
+    // Nakon ovih govora slijedi unakrsno ispitivanje (ne boduje se posebno).
+    unakrsnoNakon: ['A1', 'N1'],
     rasponi: {
-      govor: { naziv: 'Govor', min: 60, max: 80 }
+      govor: { naziv: 'Govor', min: 1, max: 30 }
     }
   }
 };
@@ -67,7 +72,7 @@ function zadaniRasponi(formatKljuc) {
 
 // Rasponi koji se razlikuju od standarda formata, kao tekst,
 // npr. ['Glavni govor: 60–80']. Prazna lista znači da nema odstupanja
-// (ili da format nema standard, kao Karl Popper).
+// (ili da format nema standard).
 function odstupanjaOdStandarda(formatKljuc, rasponi) {
   var format = Formati[formatKljuc];
   var odstupanja = [];
