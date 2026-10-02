@@ -248,7 +248,7 @@ timovi: [
 
 ### Id (jedinstvena oznaka)
 Svaki klub, tim, govornik i sudija dobije oznaku koju niko drugi nema: `k1`, `t3`, `g12`, `s2`. Tim pamti svoj klub preko id-ja (`klubId: 'k1'`), a ne preko naziva.
-Zašto: ako se klub preimenuje, timovi i dalje znaju kojem klubu pripadaju. Isto će važiti za parove i balote u kasnijim fazama.
+Zašto: ako se klub preimenuje, timovi i dalje znaju kojem klubu pripadaju. Isto će važiti za parove i sudijske listiće u kasnijim fazama.
 Primjer: funkcija `noviId('t', turnir.timovi)` nađe najveći postojeći broj i vrati sljedeći (npr. `'t7'`).
 
 ### `forEach`, `map`, `filter`
@@ -371,22 +371,22 @@ Atribut `aria-pressed="true"` kaže čitaču ekrana da je dugme trenutno "uklju�
 ### Onemogućeno dugme (`disabled`)
 `<button disabled>` se ne može kliknuti. Dugme "Generiši parove" je onemogućeno dok broj timova ne odgovara formatu.
 
-## Faza 5: Unos balota
+## Faza 5: Unos sudijskih listića
 
 ### Izračunata vrijednost (ne pamti se ono što se može izračunati)
 Pobjednik se nigdje ne upisuje. Pamte se samo bodovi, a pobjednik se svaki put **izračuna** iz njih. Tako pobjednik i bodovi nikad ne mogu biti u neskladu.
-Primjer iz `js/ballots.js`: funkcija `rezultatSobe` iz bodova svih sudija vrati pobjednika, broj balota i prosjeke govornika.
+Primjer iz `js/ballots.js`: funkcija `rezultatSobe` iz bodova svih sudija vrati pobjednika, broj sudijskih listića i prosjeke govornika.
 
 ### Lista listi (dvodimenzionalni niz)
 Lista čije su stavke opet liste, kao tabela sa redovima i kolonama.
-Primjer: bodovi na balotu su `govori: [[72, 70, 71], [69, 74, 70]]`. Prvi red je Propozicija, drugi Opozicija. `govori[1][2]` je bod trećeg govornika Opozicije (brojanje kreće od 0).
+Primjer: bodovi na sudijskom listiću su `govori: [[72, 70, 71], [69, 74, 70]]`. Prvi red je Propozicija, drugi Opozicija. `govori[1][2]` je bod trećeg govornika Opozicije (brojanje kreće od 0).
 
 ### Provjera u više nivoa
-Balot se provjerava redom, od malog prema velikom:
+Sudijski listić se provjerava redom, od malog prema velikom:
 1. **polje**: da li je svaki bod cijeli broj u rasponu (`greskaBoda`),
-2. **balot**: da li su zbirovi timova različiti, tj. nema neriješenog (`greskaZbira`),
-3. **soba**: da li je iz svih balota jasno ko je pobijedio.
-Svaka greška se prikaže tamo gdje joj je mjesto: pored polja, ispod balota ili pored dugmeta.
+2. **listić**: da li su zbirovi timova različiti, tj. nema neriješenog (`greskaZbira`),
+3. **soba**: da li je iz svih sudijskih listića jasno ko je pobijedio.
+Svaka greška se prikaže tamo gdje joj je mjesto: pored polja, ispod sudijskog listića ili pored dugmeta.
 
 ### Prosjek
 Zbir brojeva podijeljen sa koliko ih ima. Bod govornika u rundi je prosjek svih sudija: (72 + 70 + 71) / 3 = 71,33.
@@ -400,17 +400,48 @@ indeksi.sort(function (a, b) { return zbirovi[b] - zbirovi[a]; });
 Ako je rezultat pozitivan, `b` ide prije `a`. Ovako se timovi poredaju od najvećeg zbira prema najmanjem (poredak 1–4 u BP-u).
 
 ### Živi prikaz (računanje dok se kuca)
-Događaj `input` se desi kod svakog otkucanog znaka. Forma balota tada ponovo izračuna zbirove i odmah pokaže "P 214 : 213 O → pobjeđuje ...". Sudija tako vidi neriješeno prije nego klikne "Sačuvaj".
+Događaj `input` se desi kod svakog otkucanog znaka. Forma sudijskih listića tada ponovo izračuna zbirove i odmah pokaže "P 214 : 213 O → pobjeđuje ...". Sudija tako vidi neriješeno prije nego klikne "Sačuvaj".
 Primjer: `osvjeziZiviPrikaz` u `js/ballots-page.js`.
 
 ### `every` (da li važi za sve)
 `lista.every(funkcija)` vrati `true` samo ako funkcija vrati `true` za **svaku** stavku.
 ```js
-greske.balote.every(function (g) { return !g; })   // nijedan balot nema grešku
+greske.listici.every(function (g) { return !g; })   // nijedan listić nema grešku
 ```
 
 ### Ime polja kao veza između provjere i forme
-Provjera (`ballots.js`) ne zna kako forma izgleda, ali greške vraća pod istim imenima koja forma daje poljima, npr. `bod-0-1-2` (balot 0, tim 1, govornik 3). Zato se svaka greška nađe tačno pored svog polja.
+Provjera (`ballots.js`) ne zna kako forma izgleda, ali greške vraća pod istim imenima koja forma daje poljima, npr. `bod-0-1-2` (listić 0, tim 1, govornik 3). Zato se svaka greška nađe tačno pored svog polja.
 
 ### `<fieldset>` i `<legend>`
-`<fieldset>` grupiše povezana polja u okvir, a `<legend>` je naslov tog okvira. Svaki balot (jedan sudija) je jedan `fieldset`, sa naslovom "Balot 1: Lejla".
+`<fieldset>` grupiše povezana polja u okvir, a `<legend>` je naslov tog okvira. Svaki sudijski listić (jedan sudija) je jedan `fieldset`, sa naslovom "Sudijski listić 1: Lejla".
+
+## Faza 6: Tab
+
+### Preimenovanje (i stari podaci)
+"Balot" je svuda preimenovan u "sudijski listić", i u tekstu i u kodu (npr. `rezultat.listici`). Stari backup fajlovi su listiće čuvali pod imenom `balote`, pa ih funkcija `ocistiRezultat` u `js/ballots.js` i dalje prepozna. Kad se mijenja ime podatka koji je već negdje spremljen, uvijek treba misliti i na stare fajlove.
+
+### Kriteriji poretka (poređenje po više kriterija)
+Timovi se prvo porede po prvom kriteriju (npr. pobjede). Tek ako su tu jednaki, gleda se drugi (sudijski listići), pa treći (bodovi govornika). Koji kriteriji važe piše u `js/formats.js`:
+```js
+kriterijiTimova: ['pobjede', 'listici', 'bodovi']
+```
+Funkcija `poredajSaMjestima` u `js/tab.js` prolazi kroz tu listu redom.
+
+### Dijeljeno mjesto ("3–4.")
+Ako su dva tima jednaka po **svim** kriterijima, nijedan nije bolji, pa dijele mjesto. Aplikacija nađe grupu jednakih timova koji stoje jedan do drugog i svima upiše isto mjesto, npr. "3–4.". Sljedeći tim je "5.", jer su ispred njega četiri tima.
+
+### Decimalni brojevi u računaru nisu sasvim tačni
+Bod govornika je prosjek sudija, npr. 71,333... Računar takve brojeve pamti sa sitnom greškom, pa 71,333... + 70,666... može ispasti 141,99999999 umjesto 142. Zato se prije poređenja broj zaokruži na tri decimale (`zaPoredjenje`), da jednaki bodovi zaista budu jednaki.
+
+### Tabela (`<table>`)
+HTML za podatke u redovima i kolonama: `<thead>` je red sa naslovima kolona (`<th>`), `<tbody>` su redovi (`<tr>`) sa ćelijama (`<td>`). Na mobitelu je široka tabela u okviru `.okvir-tabele` sa `overflow-x: auto`, pa se pomjera lijevo-desno samo tabela, a ne cijela stranica.
+
+### Prikaz koji samo čita podatke
+Stranica Tab ništa ne sprema i nema dugmad. Sve se svaki put izračuna iz unesenih sudijskih listića (isto kao pobjednik sobe u fazi 5), pa je poredak uvijek u skladu sa bodovima.
+
+### `splice` (izbacivanje iz liste)
+`lista.splice(indeks, 1)` izbaci jednu stavku sa mjesta `indeks`. Ovako se sudija vraća među slobodne:
+```js
+runda.sobe[mjesto.soba].sudije.splice(mjesto.mjesto, 1);
+```
+(funkcija `oslobodiSudiju` u `js/rounds.js`). Sudija koji nije ni u jednoj sobi automatski je "slobodan".

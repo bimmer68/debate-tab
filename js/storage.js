@@ -16,6 +16,11 @@ function zadanePostavke() {
     brojRundi: 4,
     // Broj govornika po timu u WSDC-u (1, 3 ili 4). Ostali formati ga ne koriste.
     velicinaTima: Formati.wsdc.brojGovornika,
+    // Tab, samo WSDC (vidi tab.js). Pretpostavke koje README ne određuje tačno:
+    // - da li replika ulazi u ukupne bodove tima (kriterij poretka timova),
+    // - da li se tabela "Replike" redi po prosjeku ('prosjek') ili zbiru ('ukupno').
+    replikaUBodoveTima: true,
+    poredakReplika: 'prosjek',
     rasponi: zadaniRasponi('wsdc')
   };
 }
@@ -81,6 +86,12 @@ function dopuniTurnir(podaci) {
   }
   if (Formati.wsdc.velicineTima.indexOf(p.velicinaTima) !== -1) {
     postavke.velicinaTima = p.velicinaTima;
+  }
+  if (typeof p.replikaUBodoveTima === 'boolean') {
+    postavke.replikaUBodoveTima = p.replikaUBodoveTima;
+  }
+  if (p.poredakReplika === 'prosjek' || p.poredakReplika === 'ukupno') {
+    postavke.poredakReplika = p.poredakReplika;
   }
   postavke.rasponi = zadaniRasponi(postavke.format);
   var spremljeni = p.rasponi || {};

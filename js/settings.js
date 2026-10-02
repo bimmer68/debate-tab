@@ -45,6 +45,24 @@ function stranicaPostavki() {
         '<h2>Rasponi bodova govornika</h2>' +
         '<div id="polja-raspona">' + poljaRaspona(p.format, p.rasponi) + '</div>' +
       '</section>' +
+      // Pravila taba koja README ne određuje tačno, pa ih tab direktor može promijeniti.
+      // Postoje samo za WSDC (jedini format sa replikom).
+      '<section id="postavke-taba" class="kartica"' + (Formati[p.format].imaRepliku ? '' : ' hidden') + '>' +
+        '<h2>Tab: replike (WSDC)</h2>' +
+        '<label class="polje">Ukupni bodovi tima u poretku timova' +
+          '<select name="replikaUBodoveTima">' +
+            opcija('da', 'Glavni govori + replike (zadano)', p.replikaUBodoveTima) +
+            opcija('ne', 'Samo glavni govori', !p.replikaUBodoveTima) +
+          '</select>' +
+        '</label>' +
+        '<label class="polje">Redoslijed u tabeli "Replike"' +
+          '<select name="poredakReplika">' +
+            opcija('prosjek', 'Po prosjeku replika (zadano)', p.poredakReplika === 'prosjek') +
+            opcija('ukupno', 'Po ukupnim bodovima replika', p.poredakReplika === 'ukupno') +
+          '</select>' +
+        '</label>' +
+        '<p class="napomena">Bodovi replike nikad ne ulaze u zbir govornika; prikazuju se u posebnoj tabeli "Replike".</p>' +
+      '</section>' +
       '<div class="akcije">' +
         '<button type="submit" class="dugme">Sačuvaj postavke</button>' +
         '<span id="poruka-postavki" class="poruka" role="status"></span>' +
@@ -73,6 +91,11 @@ function stranicaPostavki() {
       '</form>' +
     '</dialog>'
   );
+}
+
+// Jedna opcija padajućeg menija.
+function opcija(vrijednost, tekst, odabrana) {
+  return '<option value="' + vrijednost + '"' + (odabrana ? ' selected' : '') + '>' + tekst + '</option>';
 }
 
 // Opcije 1, 3 i 4 za veličinu WSDC tima.
@@ -126,6 +149,8 @@ function pokreniPostavke() {
     document.getElementById('opis-formata').textContent = Formati[format].opis;
     // Izbor veličine tima postoji samo za WSDC.
     document.getElementById('izbor-velicine').hidden = !Formati[format].velicineTima;
+    // Postavke taba za replike postoje samo za format sa replikom.
+    document.getElementById('postavke-taba').hidden = !Formati[format].imaRepliku;
   });
 
   // Čim korisnik nešto promijeni, stara poruka "Postavke su sačuvane."
@@ -214,6 +239,8 @@ function procitajPostavke(forma) {
     format: format,
     brojRundi: Number(forma.brojRundi.value.trim()),
     velicinaTima: Number(forma.velicinaTima.value),
+    replikaUBodoveTima: forma.replikaUBodoveTima.value === 'da',
+    poredakReplika: forma.poredakReplika.value,
     rasponi: {}
   };
   for (var kljuc in Formati[format].rasponi) {

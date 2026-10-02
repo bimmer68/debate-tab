@@ -1,16 +1,16 @@
-// Balote: pravila, provjera ispravnosti i računanje rezultata sobe.
+// Sudijski listići: pravila, provjera ispravnosti i računanje rezultata sobe.
 // Izgled forme za unos je u ballots-page.js.
 //
 // Rezultat se pamti u sobi objavljene runde, ovako:
 //   soba.rezultat = {
 //     govornici: [['g1', 'g2', 'g3'], ['g4', 'g5', 'g6']],  // po pozicijama u sobi, redom kako govore
 //     replika: ['g1', 'g5'],                                // samo WSDC: ko drži repliku za svaki tim
-//     balote: [                                             // jedan balot po sudiji iz sobe
+//     listici: [                                            // jedan sudijski listić po sudiji iz sobe
 //       { sudijaId: 's2', govori: [[72, 70, 71], [69, 74, 70]], replike: [35, 36] }
 //     ]
 //   }
 // Govornici i replika su zajednički za cijelu sobu (svi sudije gledaju isti debat),
-// a bodove svaki sudija daje na svom balotu.
+// a bodove svaki sudija daje na svom sudijskom listiću.
 //
 // Pobjednik i poredak se NE pamte. Uvijek se izračunaju iz bodova (vidi rezultatSobe),
 // pa nikad ne mogu biti u neskladu sa bodovima.
@@ -68,9 +68,9 @@ function poljeReplike(tim) {
   return 'rep-' + tim;
 }
 
-// Bod jednog govora na balotu (balot = indeks sudije u sobi). Za repliku je mjesto -1.
-function poljeBoda(balot, tim, mjesto) {
-  return 'bod-' + balot + '-' + tim + '-' + (mjesto === -1 ? 'r' : mjesto);
+// Bod jednog govora na sudijskom listiću (listic = redni broj listića, tj. sudije u sobi). Za repliku je mjesto -1.
+function poljeBoda(listic, tim, mjesto) {
+  return 'bod-' + listic + '-' + tim + '-' + (mjesto === -1 ? 'r' : mjesto);
 }
 
 // ---- Provjera ----
@@ -92,47 +92,47 @@ function greskaBoda(tekst, raspon) {
 // Provjeri sve što je upisano na formi za jednu sobu.
 // podaci izgledaju kao soba.rezultat, samo što su bodovi još tekst (onako kako su upisani):
 //   { govornici: [['g1', ...], ...], replika: ['g1', 'g5'],
-//     balote: [{ sudijaId: 's2', govori: [['72', '70', '71'], ...], replike: ['35', '36'] }] }
+//     listici: [{ sudijaId: 's2', govori: [['72', '70', '71'], ...], replike: ['35', '36'] }] }
 // Provjera ide u tri nivoa:
 //   1. polja:  svaki bod i svaki izbor govornika posebno,
-//   2. balot:  ukupni bodovi timova na jednom balotu (neriješeno nije dozvoljeno),
-//   3. soba:   da li je iz svih balota jasno ko je pobijedio.
-// Vraća { polja: { imePolja: 'greška' }, balote: ['greška' ili '' za svaki balot], soba: 'greška' ili '' }.
-function provjeriBalote(turnir, soba, podaci) {
-  var greske = { polja: {}, balote: [], soba: '' };
+//   2. listić: ukupni bodovi timova na jednom sudijskom listiću (neriješeno nije dozvoljeno),
+//   3. soba:   da li je iz svih sudijskih listića jasno ko je pobijedio.
+// Vraća { polja: { imePolja: 'greška' }, listici: ['greška' ili '' za svaki sudijski listić], soba: 'greška' ili '' }.
+function provjeriListice(turnir, soba, podaci) {
+  var greske = { polja: {}, listici: [], soba: '' };
   provjeriGovornike(turnir, soba, podaci, greske.polja);
 
   var govori = redoslijedGovora(turnir);
   var sviBodoviIspravni = true;
-  podaci.balote.forEach(function (balot, b) {
+  podaci.listici.forEach(function (listic, b) {
     var bodoviIspravni = true;
     govori.forEach(function (govor) {
-      var greska = greskaBoda(tekstBoda(balot, govor), rasponZaGovor(turnir, govor.vrsta));
+      var greska = greskaBoda(tekstBoda(listic, govor), rasponZaGovor(turnir, govor.vrsta));
       if (greska) {
         greske.polja[poljeBoda(b, govor.tim, govor.mjesto)] = greska;
         bodoviIspravni = false;
       }
     });
-    // Zbir se provjerava tek kad su svi bodovi na balotu ispravni.
-    greske.balote.push(bodoviIspravni ? greskaZbira(turnir, zbiroviBalota(turnir, pretvoriBalot(balot))) : '');
-    if (!bodoviIspravni || greske.balote[b]) {
+    // Zbir se provjerava tek kad su svi bodovi na sudijskom listiću ispravni.
+    greske.listici.push(bodoviIspravni ? greskaZbira(turnir, zbiroviListica(turnir, pretvoriListic(listic))) : '');
+    if (!bodoviIspravni || greske.listici[b]) {
       sviBodoviIspravni = false;
     }
   });
 
-  if (podaci.balote.length === 0) {
-    greske.soba = 'Soba nema nijednog sudiju, pa nema ni balota.';
+  if (podaci.listici.length === 0) {
+    greske.soba = 'Soba nema nijednog sudiju, pa nema ni sudijskih listića.';
   } else if (sviBodoviIspravni && !rezultatSobe(turnir, soba, pretvoriRezultat(podaci)).odluceno) {
-    greske.soba = 'Iz balota se ne može odrediti pobjednik sobe (sudije su podijeljene). ' +
+    greske.soba = 'Iz sudijskih listića se ne može odrediti pobjednik sobe (sudije su podijeljene). ' +
       'Sudije moraju odlučiti i promijeniti bodove.';
   }
   return greske;
 }
 
 // Da li provjera nije našla nijednu grešku.
-function baloteIspravne(greske) {
+function listiciIspravni(greske) {
   return Object.keys(greske.polja).length === 0 && !greske.soba &&
-    greske.balote.every(function (g) { return !g; });
+    greske.listici.every(function (g) { return !g; });
 }
 
 // Govorni redoslijed i replika:
@@ -164,7 +164,7 @@ function provjeriGovornike(turnir, soba, podaci, greske) {
   });
 }
 
-// Neriješeno nije dozvoljeno: na jednom balotu nijedna dva tima ne smiju imati isti zbir.
+// Neriješeno nije dozvoljeno: na jednom sudijskom listiću nijedna dva tima ne smiju imati isti zbir.
 // Kod WSDC-a i Karla Poppera to znači da zbirovi dva tima ne smiju biti jednaki,
 // a kod BP-a da sva četiri zbira moraju biti različita (da poredak 1–4 bude jasan).
 function greskaZbira(turnir, zbirovi) {
@@ -182,18 +182,18 @@ function greskaZbira(turnir, zbirovi) {
 
 // ---- Pretvaranje teksta u brojeve ----
 
-function tekstBoda(balot, govor) {
-  var tekst = govor.vrsta === 'replika' ? balot.replike[govor.tim] : (balot.govori[govor.tim] || [])[govor.mjesto];
+function tekstBoda(listic, govor) {
+  var tekst = govor.vrsta === 'replika' ? listic.replike[govor.tim] : (listic.govori[govor.tim] || [])[govor.mjesto];
   return typeof tekst === 'string' ? tekst : '';
 }
 
-// Balot sa bodovima kao tekstom -> isti balot sa brojevima.
-function pretvoriBalot(balot) {
+// Sudijski listić sa bodovima kao tekstom -> isti listić sa brojevima.
+function pretvoriListic(listic) {
   function broj(tekst) { return Number(String(tekst).trim()); }
   return {
-    sudijaId: balot.sudijaId,
-    govori: balot.govori.map(function (tim) { return tim.map(broj); }),
-    replike: balot.replike.map(broj)
+    sudijaId: listic.sudijaId,
+    govori: listic.govori.map(function (tim) { return tim.map(broj); }),
+    replike: listic.replike.map(broj)
   };
 }
 
@@ -202,50 +202,50 @@ function pretvoriRezultat(podaci) {
   return {
     govornici: podaci.govornici.map(function (red) { return red.slice(); }),
     replika: podaci.replika.slice(),
-    balote: podaci.balote.map(pretvoriBalot)
+    listici: podaci.listici.map(pretvoriListic)
   };
 }
 
 // ---- Računanje rezultata ----
 
-// Zbir bodova svakog tima na jednom balotu (glavni govori + replika), npr. [214, 213].
-function zbiroviBalota(turnir, balot) {
-  return balot.govori.map(function (bodovi, t) {
+// Zbir bodova svakog tima na jednom sudijskom listiću (glavni govori + replika), npr. [214, 213].
+function zbiroviListica(turnir, listic) {
+  return listic.govori.map(function (bodovi, t) {
     var zbir = 0;
     bodovi.forEach(function (bod) { zbir += bod; });
     if (imaRepliku(turnir)) {
-      zbir += balot.replike[t];
+      zbir += listic.replike[t];
     }
     return zbir;
   });
 }
 
-// Poredak timova na jednom balotu: indeksi pozicija od najvećeg zbira prema najmanjem.
+// Poredak timova na jednom sudijskom listiću: indeksi pozicija od najvećeg zbira prema najmanjem.
 // Npr. zbirovi [150, 162, 148, 155] daju poredak [1, 3, 0, 2] (OO prvi, CO drugi...).
 function poredakPoZbiru(zbirovi) {
   var indeksi = zbirovi.map(function (z, i) { return i; });
   return indeksi.sort(function (a, b) { return zbirovi[b] - zbirovi[a]; });
 }
 
-// Rezultat sobe izračunat iz svih balota (rezultat ima bodove kao brojeve).
+// Rezultat sobe izračunat iz svih sudijskih listića (rezultat ima bodove kao brojeve).
 // Vraća:
 //   {
-//     zbirovi: [[214, 213], [210, 215], ...],  // zbir svakog tima na svakom balotu
-//     glasovi: [2, 1],          // koliko balota je tim dobio (bio prvi na balotu)
+//     zbirovi: [[214, 213], [210, 215], ...],  // zbir svakog tima na svakom listiću
+//     glasovi: [2, 1],          // koliko sudijskih listića je tim dobio (bio prvi na listiću)
 //     prosjekZbira: [212.3, 211.7],  // prosječni zbir tima (prosjek svih sudija)
 //     poredak: [0, 1],          // poredak u sobi; prvi je pobjednik
 //     odluceno: true,           // false ako se poredak ne može odrediti
 //     govornici: [{ id: 'g1', tim: 0, vrsta: 'glavni', bod: 71.33 }, ...]  // prosjek svih sudija
 //   }
 //
-// Pravilo: tim pobjeđuje u sobi ako dobije većinu balota.
+// Pravilo: tim pobjeđuje u sobi ako dobije većinu sudijskih listića.
 // Kod BP-a (4 tima) isto pravilo, prošireno: za svaki tim se saberu mjesta koja je dobio
-// na svim balotima (1. mjesto = 0, 2. = 1...). Manji zbir mjesta je bolji. Kod dva tima je
-// to isto što i "većina balota". Ako dva tima imaju isti zbir mjesta, bolji je onaj sa
+// na svim sudijskim listićima (1. mjesto = 0, 2. = 1...). Manji zbir mjesta je bolji. Kod dva tima je
+// to isto što i "većina sudijskih listića". Ako dva tima imaju isti zbir mjesta, bolji je onaj sa
 // većim prosječnim zbirom bodova. Ako je i to isto, soba nije odlučena.
 function rezultatSobe(turnir, soba, rezultat) {
   var brojTimova = soba.timovi.length;
-  var zbirovi = rezultat.balote.map(function (balot) { return zbiroviBalota(turnir, balot); });
+  var zbirovi = rezultat.listici.map(function (listic) { return zbiroviListica(turnir, listic); });
   var glasovi = [];
   var zbirMjesta = [];
   var prosjekZbira = [];
@@ -270,7 +270,7 @@ function rezultatSobe(turnir, soba, rezultat) {
     return prosjekZbira[b] - prosjekZbira[a];
   }
   var poredak = zbirMjesta.map(function (z, i) { return i; }).sort(uporedi);
-  var odluceno = rezultat.balote.length > 0;
+  var odluceno = rezultat.listici.length > 0;
   for (var i = 1; i < poredak.length; i++) {
     if (uporedi(poredak[i - 1], poredak[i]) === 0) {
       odluceno = false;
@@ -292,13 +292,13 @@ function prosjeciGovornika(turnir, rezultat) {
   var lista = [];
   rezultat.govornici.forEach(function (redoslijed, t) {
     redoslijed.forEach(function (id, mjesto) {
-      var bodovi = rezultat.balote.map(function (balot) { return balot.govori[t][mjesto]; });
+      var bodovi = rezultat.listici.map(function (listic) { return listic.govori[t][mjesto]; });
       lista.push({ id: id, tim: t, vrsta: 'glavni', bod: prosjek(bodovi) });
     });
   });
   if (imaRepliku(turnir)) {
     rezultat.replika.forEach(function (id, t) {
-      var bodovi = rezultat.balote.map(function (balot) { return balot.replike[t]; });
+      var bodovi = rezultat.listici.map(function (listic) { return listic.replike[t]; });
       lista.push({ id: id, tim: t, vrsta: 'replika', bod: prosjek(bodovi) });
     });
   }
@@ -319,14 +319,14 @@ function tekstBodova(broj) {
   return String(Math.round(broj * 100) / 100).replace('.', ',');
 }
 
-// Koliko soba runde ima unesene balote.
+// Koliko soba runde ima unesene sudijske listiće.
 function brojUnesenihSoba(runda) {
   return runda.sobe.filter(function (s) { return s.rezultat; }).length;
 }
 
-// Obriši sve unesene balote runde (npr. kad se runda vrati u nacrt,
-// jer se tada timovi i sudije mogu zamijeniti, pa balote više ne bi odgovarale).
-function obrisiBaloteRunde(runda) {
+// Obriši sve unesene sudijske listiće runde (npr. kad se runda vrati u nacrt,
+// jer se tada timovi i sudije mogu zamijeniti, pa listići više ne bi odgovarali).
+function obrisiListiceRunde(runda) {
   runda.sobe.forEach(function (s) { delete s.rezultat; });
 }
 
@@ -334,20 +334,25 @@ function obrisiBaloteRunde(runda) {
 // Poziva se iz ocistiRunde (rounds.js) za svaku sobu objavljene runde.
 // Vraća rezultat ako ima ispravan oblik, inače null (rezultat se odbaci,
 // a soba je opet "nije uneseno").
+// Stariji podaci (prije preimenovanja) listiće čuvaju pod imenom "balote",
+// pa se i to ime prihvata, da stari backup fajlovi i dalje rade.
 function ocistiRezultat(r, brojTimova) {
-  if (!r || typeof r !== 'object' || !Array.isArray(r.govornici) || !Array.isArray(r.balote) ||
-      r.govornici.length !== brojTimova || r.balote.length === 0) {
+  if (r && typeof r === 'object' && !r.listici && Array.isArray(r.balote)) {
+    r = { govornici: r.govornici, replika: r.replika, listici: r.balote };
+  }
+  if (!r || typeof r !== 'object' || !Array.isArray(r.govornici) || !Array.isArray(r.listici) ||
+      r.govornici.length !== brojTimova || r.listici.length === 0) {
     return null;
   }
   var replika = Array.isArray(r.replika) ? r.replika : [];
   var ispravno = r.govornici.every(function (red) { return Array.isArray(red) && red.every(jeTekst); }) &&
     replika.every(jeTekst) &&
-    r.balote.every(function (b) {
-      return b && jeTekst(b.sudijaId) && Array.isArray(b.govori) && b.govori.length === brojTimova &&
-        b.govori.every(function (bodovi, t) {
+    r.listici.every(function (l) {
+      return l && jeTekst(l.sudijaId) && Array.isArray(l.govori) && l.govori.length === brojTimova &&
+        l.govori.every(function (bodovi, t) {
           return Array.isArray(bodovi) && bodovi.length === r.govornici[t].length && bodovi.every(Number.isInteger);
         }) &&
-        Array.isArray(b.replike) && b.replike.length === replika.length && b.replike.every(Number.isInteger);
+        Array.isArray(l.replike) && l.replike.length === replika.length && l.replike.every(Number.isInteger);
     });
   if (!ispravno) {
     return null;
@@ -355,8 +360,8 @@ function ocistiRezultat(r, brojTimova) {
   return {
     govornici: r.govornici.map(function (red) { return red.slice(); }),
     replika: replika.slice(),
-    balote: r.balote.map(function (b) {
-      return { sudijaId: b.sudijaId, govori: b.govori.map(function (x) { return x.slice(); }), replike: b.replike.slice() };
+    listici: r.listici.map(function (l) {
+      return { sudijaId: l.sudijaId, govori: l.govori.map(function (x) { return x.slice(); }), replike: l.replike.slice() };
     })
   };
 }

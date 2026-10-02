@@ -8,7 +8,7 @@
 //     velicinaPanela: 3,        // 1, 3 ili 5 sudija po sobi
 //     sobe: [
 //       { timovi: ['t3', 't1'], sudije: ['s2', 's5', 's1'] },   // timovi po pozicijama
-//       ...                                                      // + rezultat (balote), vidi ballots.js
+//       ...                                                      // + rezultat (sudijski listići), vidi ballots.js
 //     ]
 //   }]
 // Sudije koje nisu ni u jednoj sobi su "slobodne" i ne pamte se posebno.
@@ -172,6 +172,32 @@ function zamijeniSudije(runda, idA, idB) {
   }
 }
 
+// Dodaj slobodnog sudiju u sobu kojoj nedostaje sudija za pun panel.
+// Vraća true ako je dodan.
+function dodajSudijuUSobu(runda, id, indeksSobe) {
+  var soba = runda.sobe[indeksSobe];
+  if (!soba || nadjiMjesto(runda, 'sudije', id) || soba.sudije.length >= runda.velicinaPanela) {
+    return false;
+  }
+  soba.sudije.push(id);
+  return true;
+}
+
+// Izvadi sudiju iz sobe: postaje slobodan. Vraća indeks sobe iz koje je izašao, ili -1.
+function oslobodiSudiju(runda, id) {
+  var mjesto = nadjiMjesto(runda, 'sudije', id);
+  if (!mjesto) {
+    return -1;
+  }
+  runda.sobe[mjesto.soba].sudije.splice(mjesto.mjesto, 1);
+  return mjesto.soba;
+}
+
+// Da li sobi nedostaje sudija za pun panel.
+function sobaTrebaSudiju(runda, soba) {
+  return soba.sudije.length < runda.velicinaPanela;
+}
+
 // Sudije koje nisu ni u jednoj sobi.
 function slobodneSudije(turnir, runda) {
   return turnir.sudije.filter(function (s) { return !nadjiMjesto(runda, 'sudije', s.id); });
@@ -244,7 +270,7 @@ function razloziZastarjelosti(turnir, runda) {
 // Šta sprečava objavu runde. Crvene oznake ne sprečavaju objavu (samo se pita).
 function preprekeZaObjavu(turnir, runda) {
   var prepreke = razloziZastarjelosti(turnir, runda);
-  var nepotpuni = runda.sobe.filter(function (s) { return s.sudije.length < runda.velicinaPanela; }).length;
+  var nepotpuni = runda.sobe.filter(function (s) { return sobaTrebaSudiju(runda, s); }).length;
   if (nepotpuni > 0) {
     prepreke.push(tekstBroja(nepotpuni, 'soba nema', 'sobe nemaju', 'soba nema') + ' pun panel (' +
       tekstBroja(runda.velicinaPanela, 'sudija', 'sudije', 'sudija') + '). Izaberi manji panel ili dodaj sudije.');
@@ -282,7 +308,7 @@ function ocistiRunde(podaci) {
       return s && Array.isArray(s.timovi) && Array.isArray(s.sudije);
     }).map(function (s) {
       var soba = { timovi: s.timovi.filter(jeTekst), sudije: s.sudije.filter(jeTekst) };
-      // Balote postoje samo u objavljenoj rundi.
+      // Sudijski listići postoje samo u objavljenoj rundi.
       var rezultat = objavljena ? ocistiRezultat(s.rezultat, soba.timovi.length) : null;
       if (rezultat) {
         soba.rezultat = rezultat;
