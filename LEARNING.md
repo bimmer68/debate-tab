@@ -370,3 +370,47 @@ Atribut `aria-pressed="true"` kaže čitaču ekrana da je dugme trenutno "uklju�
 
 ### Onemogućeno dugme (`disabled`)
 `<button disabled>` se ne može kliknuti. Dugme "Generiši parove" je onemogućeno dok broj timova ne odgovara formatu.
+
+## Faza 5: Unos balota
+
+### Izračunata vrijednost (ne pamti se ono što se može izračunati)
+Pobjednik se nigdje ne upisuje. Pamte se samo bodovi, a pobjednik se svaki put **izračuna** iz njih. Tako pobjednik i bodovi nikad ne mogu biti u neskladu.
+Primjer iz `js/ballots.js`: funkcija `rezultatSobe` iz bodova svih sudija vrati pobjednika, broj balota i prosjeke govornika.
+
+### Lista listi (dvodimenzionalni niz)
+Lista čije su stavke opet liste, kao tabela sa redovima i kolonama.
+Primjer: bodovi na balotu su `govori: [[72, 70, 71], [69, 74, 70]]`. Prvi red je Propozicija, drugi Opozicija. `govori[1][2]` je bod trećeg govornika Opozicije (brojanje kreće od 0).
+
+### Provjera u više nivoa
+Balot se provjerava redom, od malog prema velikom:
+1. **polje**: da li je svaki bod cijeli broj u rasponu (`greskaBoda`),
+2. **balot**: da li su zbirovi timova različiti, tj. nema neriješenog (`greskaZbira`),
+3. **soba**: da li je iz svih balota jasno ko je pobijedio.
+Svaka greška se prikaže tamo gdje joj je mjesto: pored polja, ispod balota ili pored dugmeta.
+
+### Prosjek
+Zbir brojeva podijeljen sa koliko ih ima. Bod govornika u rundi je prosjek svih sudija: (72 + 70 + 71) / 3 = 71,33.
+Primjer: funkcija `prosjek` u `js/ballots.js`. Za prikaz se zaokruži na dvije decimale (`tekstBodova`).
+
+### Sortiranje brojeva (`sort` sa funkcijom poređenja)
+`sort` sam po sebi poredi tekst, pa bi "100" došlo prije "50". Zato mu damo funkciju koja kaže kako se porede dva elementa.
+```js
+indeksi.sort(function (a, b) { return zbirovi[b] - zbirovi[a]; });
+```
+Ako je rezultat pozitivan, `b` ide prije `a`. Ovako se timovi poredaju od najvećeg zbira prema najmanjem (poredak 1–4 u BP-u).
+
+### Živi prikaz (računanje dok se kuca)
+Događaj `input` se desi kod svakog otkucanog znaka. Forma balota tada ponovo izračuna zbirove i odmah pokaže "P 214 : 213 O → pobjeđuje ...". Sudija tako vidi neriješeno prije nego klikne "Sačuvaj".
+Primjer: `osvjeziZiviPrikaz` u `js/ballots-page.js`.
+
+### `every` (da li važi za sve)
+`lista.every(funkcija)` vrati `true` samo ako funkcija vrati `true` za **svaku** stavku.
+```js
+greske.balote.every(function (g) { return !g; })   // nijedan balot nema grešku
+```
+
+### Ime polja kao veza između provjere i forme
+Provjera (`ballots.js`) ne zna kako forma izgleda, ali greške vraća pod istim imenima koja forma daje poljima, npr. `bod-0-1-2` (balot 0, tim 1, govornik 3). Zato se svaka greška nađe tačno pored svog polja.
+
+### `<fieldset>` i `<legend>`
+`<fieldset>` grupiše povezana polja u okvir, a `<legend>` je naslov tog okvira. Svaki balot (jedan sudija) je jedan `fieldset`, sa naslovom "Balot 1: Lejla".

@@ -51,7 +51,8 @@ Kod kreiranja turnira bira se format. Rasponi bodova su postavke koje se mogu mi
 ### Karl Popper
 - 2 tima (Afirmacija i Negacija), po 3 govornika.
 - Redoslijed: A1, (unakrsno ispitivanje), N1, (unakrsno ispitivanje), A2, N2, A3, N3.
-- Rasponi bodova govornika su postavka (vlasnik projekta će ih potvrditi).
+- Bodovi govornika: 1–30.
+- Nema replike.
 - Poredak timova: pobjede → ballots → ukupni bodovi govornika.
 
 ## Zajednička pravila
@@ -63,8 +64,25 @@ Kod kreiranja turnira bira se format. Rasponi bodova su postavke koje se mogu mi
 - **Runda 1:** nasumično parovanje uz poštivanje pravila o klubovima.
 - **Runde 2+:** power pairing, tj. timovi sa sličnim rezultatom idu jedni protiv drugih.
 - Ako broj timova ne odgovara formatu (neparan za WSDC/KP, nije djeljiv sa 4 za BP), aplikacija nudi dodavanje **swing tima** (tim sastavljen od rezervnih govornika, ne ulazi u poredak).
-- **Standardni rasponi bodova:** svaki format ima standardni raspon (WSDC: glavni govor 60–80, replika 30–40; BP: 50–100). Ako tab direktor unese raspon koji odstupa od standarda, aplikacija prikaže upozorenje "Raspon odstupa od standarda za [format] ([raspon]). Sačuvati svejedno?" sa dugmadima **Sačuvaj** / **Odustani**. Ne blokira, samo upozorava. Za Karl Popper standard još nije definisan, pa tu nema upozorenja.
+- **Standardni rasponi bodova:** svaki format ima standardni raspon (WSDC: glavni govor 60–80, replika 30–40; BP: 50–100; Karl Popper: 1–30). Ako tab direktor unese raspon koji odstupa od standarda, aplikacija prikaže upozorenje "Raspon odstupa od standarda za [format] ([raspon]). Sačuvati svejedno?" sa dugmadima **Sačuvaj** / **Odustani**. Ne blokira, samo upozorava.
 - **Break:** vlasnik bira koliko timova ide u eliminacije (npr. 4 ili 8). Aplikacija pravi eliminacijski ždrijeb po poretku.
+
+### Pravila za balote (svi formati)
+
+- Pobjednik se ne bira posebno. Aplikacija ga izračuna iz bodova: pobjeđuje tim sa više ukupnih bodova na tom balotu.
+- **Neriješeno nije dozvoljeno.** Ako su ukupni bodovi timova jednaki, balot se ne može sačuvati, uz poruku da sudija mora odlučiti i promijeniti bodove.
+- **BP:** poredak 1–4 izračunava se iz ukupnih bodova timova. Dva tima sa istim zbirom na istom balotu nisu dozvoljena.
+- Bodovi su cijeli brojevi, unutar raspona iz Postavki. Van raspona balot se ne može sačuvati.
+- **Panel:** svaki sudija ima svoj balot. Tim pobjeđuje u sobi ako dobije većinu balota. Bod govornika u rundi je prosjek bodova svih sudija u toj sobi.
+- **WSDC:** na balotu se bira koji govornik drži repliku. U 1v1 to je jedini govornik, u 3v3 i 4v4 bilo ko osim zadnjeg.
+
+### Kako radi unos balota
+
+- Balote se unose samo za objavljene runde.
+- Za svaku sobu vidi se status: "nije uneseno" / "uneseno".
+- Unesen balot može se urediti.
+- Govorni redoslijed na formi prati format.
+- Swing tim se boduje normalno na balotu, ali ne ulazi u poredak.
 
 ---
 

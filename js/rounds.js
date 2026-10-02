@@ -8,7 +8,7 @@
 //     velicinaPanela: 3,        // 1, 3 ili 5 sudija po sobi
 //     sobe: [
 //       { timovi: ['t3', 't1'], sudije: ['s2', 's5', 's1'] },   // timovi po pozicijama
-//       ...
+//       ...                                                      // + rezultat (balote), vidi ballots.js
 //     ]
 //   }]
 // Sudije koje nisu ni u jednoj sobi su "slobodne" i ne pamte se posebno.
@@ -277,14 +277,21 @@ function ocistiRunde(podaci) {
         !Array.isArray(r.sobe) || nadjiRundu({ runde: runde }, r.broj)) {
       return;
     }
+    var objavljena = r.status === 'objavljena';
     var sobe = r.sobe.filter(function (s) {
       return s && Array.isArray(s.timovi) && Array.isArray(s.sudije);
     }).map(function (s) {
-      return { timovi: s.timovi.filter(jeTekst), sudije: s.sudije.filter(jeTekst) };
+      var soba = { timovi: s.timovi.filter(jeTekst), sudije: s.sudije.filter(jeTekst) };
+      // Balote postoje samo u objavljenoj rundi.
+      var rezultat = objavljena ? ocistiRezultat(s.rezultat, soba.timovi.length) : null;
+      if (rezultat) {
+        soba.rezultat = rezultat;
+      }
+      return soba;
     });
     runde.push({
       broj: r.broj,
-      status: r.status === 'objavljena' ? 'objavljena' : 'nacrt',
+      status: objavljena ? 'objavljena' : 'nacrt',
       velicinaPanela: VELICINE_PANELA.indexOf(r.velicinaPanela) !== -1 ? r.velicinaPanela : ZADANI_PANEL,
       sobe: sobe
     });

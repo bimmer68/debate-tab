@@ -599,6 +599,122 @@ button.cip:focus-visible {
   outline-offset: 1px;
 }
 
+/* ---- Balote ---- */
+
+.status-uneseno {
+  color: var(--boja-uspjeh);
+  border-color: var(--boja-uspjeh);
+}
+
+.status-nije-uneseno {
+  color: var(--boja-upozorenje);
+  border-color: var(--boja-upozorenje);
+}
+
+/* Dio ispod sobe: status balota, rezultat i dugme */
+.balot-sobe {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--boja-okvir);
+}
+
+.balot-sobe .status {
+  margin-left: 0;
+}
+
+.balot-sobe .akcije {
+  margin: 8px 0 0;
+}
+
+.rezultat-sobe {
+  font-weight: 600;
+  margin: 8px 0;
+}
+
+.rezultat-sobe:empty {
+  display: none;
+}
+
+/* Jedan dio forme: govornici ili balot jednog sudije */
+.okvir-balota {
+  border: 1px solid var(--boja-okvir);
+  border-radius: var(--radijus);
+  padding: 8px var(--razmak) var(--razmak);
+  margin: 0 0 var(--razmak);
+  min-width: 0;
+}
+
+.okvir-balota legend {
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.mreza-govornika {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--razmak);
+}
+
+.tim-govornici h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.polje-govornika {
+  margin-bottom: 6px;
+}
+
+.oznaka-govora {
+  font-weight: 700;
+  color: var(--boja-naglasak);
+}
+
+/* Red za jedan govor: oznaka, ime govornika, polje za bod */
+.redovi-bodova {
+  max-width: 34rem;
+}
+
+.red-boda {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr 5rem;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 4px 0;
+}
+
+.red-boda input {
+  width: 100%;
+  text-align: center;
+}
+
+.red-boda .greska-polja {
+  grid-column: 1 / -1;
+}
+
+.red-replike {
+  border-top: 1px dashed var(--boja-okvir);
+}
+
+.ime-govornika {
+  overflow-wrap: anywhere;
+}
+
+.unakrsno {
+  margin: 2px 0 2px 6.5rem;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--boja-tekst-blijeda);
+}
+
+.zbir-balota {
+  font-weight: 600;
+  margin: 10px 0 0;
+}
+
+.zbir-nerijeseno {
+  color: var(--boja-greska);
+}
+
 /* Laptop: malo više "zraka" oko sadržaja i postavke u dvije kolone */
 @media (min-width: 900px) {
   :root {
@@ -629,5 +745,13 @@ button.cip:focus-visible {
 
   .sadrzaj h1 {
     font-size: 1.35rem;
+  }
+
+  .red-boda {
+    grid-template-columns: 5rem 1fr 4.5rem;
+  }
+
+  .unakrsno {
+    margin-left: 0;
   }
 }
