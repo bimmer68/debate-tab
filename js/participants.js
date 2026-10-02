@@ -9,7 +9,7 @@
 //
 // Swing tim (vidi rounds.js) je tim sa oznakom swing: true i bez kluba.
 //
-// Svaki učesnik ima svoj id. Kasnije faze (parovi, balote) pamte samo id,
+// Svaki učesnik ima svoj id. Kasnije faze (parovi, sudijski listići) pamte samo id,
 // pa promjena imena ne kvari ništa što je već uneseno.
 
 // README: turnir ima najviše 16 timova.

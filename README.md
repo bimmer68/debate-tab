@@ -1,6 +1,6 @@
 # Debate Tab
 
-Web aplikacija za vođenje debatnih turnira (tab sistem): unos timova i sudija, parovanje po rundama, unos balota, poredak timova i govornika, te break za eliminacije.
+Web aplikacija za vođenje debatnih turnira (tab sistem): unos timova i sudija, parovanje po rundama, unos sudijskih listića, poredak timova i govornika, te break za eliminacije.
 
 Aplikacija je na **bosanskom jeziku**.
 
@@ -39,7 +39,7 @@ Kod kreiranja turnira bira se format. Rasponi bodova su postavke koje se mogu mi
 - Bodovi: glavni govor 60–80, replika 30–40.
 - Ako već postoje timovi sa drugim brojem govornika, veličina tima se ne može promijeniti dok se ti timovi ne urede ili obrišu.
 - Panel sudija (neparan broj). Pobjeđuje tim za koji glasa većina sudija.
-- Poredak timova: pobjede → broj sudijskih glasova (ballots) → ukupni bodovi govornika.
+- Poredak timova: pobjede → broj sudijskih listića → ukupni bodovi govornika.
 
 ### British Parliamentary (BP)
 - 4 tima: Otvaranje Vlade (OG), Otvaranje Opozicije (OO), Zatvaranje Vlade (CG), Zatvaranje Opozicije (CO), po 2 govornika.
@@ -53,7 +53,7 @@ Kod kreiranja turnira bira se format. Rasponi bodova su postavke koje se mogu mi
 - Redoslijed: A1, (unakrsno ispitivanje), N1, (unakrsno ispitivanje), A2, N2, A3, N3.
 - Bodovi govornika: 1–30.
 - Nema replike.
-- Poredak timova: pobjede → ballots → ukupni bodovi govornika.
+- Poredak timova: pobjede → broj sudijskih listića → ukupni bodovi govornika.
 
 ## Zajednička pravila
 
@@ -67,22 +67,30 @@ Kod kreiranja turnira bira se format. Rasponi bodova su postavke koje se mogu mi
 - **Standardni rasponi bodova:** svaki format ima standardni raspon (WSDC: glavni govor 60–80, replika 30–40; BP: 50–100; Karl Popper: 1–30). Ako tab direktor unese raspon koji odstupa od standarda, aplikacija prikaže upozorenje "Raspon odstupa od standarda za [format] ([raspon]). Sačuvati svejedno?" sa dugmadima **Sačuvaj** / **Odustani**. Ne blokira, samo upozorava.
 - **Break:** vlasnik bira koliko timova ide u eliminacije (npr. 4 ili 8). Aplikacija pravi eliminacijski ždrijeb po poretku.
 
-### Pravila za balote (svi formati)
+### Pravila za sudijske listiće (svi formati)
 
-- Pobjednik se ne bira posebno. Aplikacija ga izračuna iz bodova: pobjeđuje tim sa više ukupnih bodova na tom balotu.
-- **Neriješeno nije dozvoljeno.** Ako su ukupni bodovi timova jednaki, balot se ne može sačuvati, uz poruku da sudija mora odlučiti i promijeniti bodove.
-- **BP:** poredak 1–4 izračunava se iz ukupnih bodova timova. Dva tima sa istim zbirom na istom balotu nisu dozvoljena.
-- Bodovi su cijeli brojevi, unutar raspona iz Postavki. Van raspona balot se ne može sačuvati.
-- **Panel:** svaki sudija ima svoj balot. Tim pobjeđuje u sobi ako dobije većinu balota. Bod govornika u rundi je prosjek bodova svih sudija u toj sobi.
-- **WSDC:** na balotu se bira koji govornik drži repliku. U 1v1 to je jedini govornik, u 3v3 i 4v4 bilo ko osim zadnjeg.
+- Pobjednik se ne bira posebno. Aplikacija ga izračuna iz bodova: pobjeđuje tim sa više ukupnih bodova na tom sudijskom listiću.
+- **Neriješeno nije dozvoljeno.** Ako su ukupni bodovi timova jednaki, sudijski listić se ne može sačuvati, uz poruku da sudija mora odlučiti i promijeniti bodove.
+- **BP:** poredak 1–4 izračunava se iz ukupnih bodova timova. Dva tima sa istim zbirom na istom sudijskom listiću nisu dozvoljena.
+- Bodovi su cijeli brojevi, unutar raspona iz Postavki. Van raspona sudijski listić se ne može sačuvati.
+- **Panel:** svaki sudija ima svoj sudijski listić. Tim pobjeđuje u sobi ako dobije većinu sudijskih listića. Bod govornika u rundi je prosjek bodova svih sudija u toj sobi.
+- **WSDC:** na sudijskom listiću se bira koji govornik drži repliku. U 1v1 to je jedini govornik, u 3v3 i 4v4 bilo ko osim zadnjeg.
 
-### Kako radi unos balota
+### Kako radi unos sudijskih listića
 
-- Balote se unose samo za objavljene runde.
+- Sudijski listići se unose samo za objavljene runde.
 - Za svaku sobu vidi se status: "nije uneseno" / "uneseno".
-- Unesen balot može se urediti.
+- Uneseni sudijski listići mogu se urediti.
 - Govorni redoslijed na formi prati format.
-- Swing tim se boduje normalno na balotu, ali ne ulazi u poredak.
+- Swing tim se boduje normalno na sudijskom listiću, ali ne ulazi u poredak.
+
+### Pravila za tab (poredak)
+
+- **Timovi:** poredak po kriterijima formata (WSDC i Karl Popper: pobjede → broj sudijskih listića → ukupni bodovi govornika; BP: timski bodovi → ukupni bodovi govornika). Ako su timovi izjednačeni po **svim** kriterijima, dijele mjesto (npr. "3–4."), a sljedeći tim je "5.".
+- **Govornici:** poredak po ukupnim bodovima kroz sve runde, uz prikaz prosjeka. Govornici sa istim ukupnim bodovima dijele mjesto.
+- Swing tim i njegovi govornici ne ulaze u poredak.
+- **WSDC:** bodovi replike ne ulaze u zbir govornika. Prikazuju se u posebnoj tabeli "Replike".
+- Tab računa samo runde koje imaju unesene sve sudijske listiće. Ako nekoj sobi nedostaju sudijski listići, aplikacija upozori koja je to soba.
 
 ---
 
@@ -94,10 +102,10 @@ Svaka faza je jedna cloud sesija i jedan pull request.
 2. **Postavke turnira**: naziv, format, broj preliminarnih rundi, rasponi bodova. Snimanje u `localStorage`, izvoz/uvoz JSON-a.
 3. **Unos učesnika**: klubovi, timovi sa govornicima, sudije sa klubom. Dodavanje, uređivanje, brisanje.
 4. **Parovanje runde 1**: nasumično uz pravila; ručna izmjena parova; dodjela sudija uz upozorenje na konflikte.
-5. **Unos balota**: forma prilagođena formatu, sa provjerom da su bodovi u rasponu i da se bodovi slažu sa pobjednikom.
+5. **Unos sudijskih listića**: forma prilagođena formatu, sa provjerom da su bodovi u rasponu i da se bodovi slažu sa pobjednikom.
 6. **Tab**: poredak timova i poredak govornika, po pravilima formata.
 7. **Power pairing** za runde 2+: izbjegavanje ponovljenih susreta i balans strana/pozicija.
 8. **Break i eliminacije**.
 9. **Štampa i dijeljenje**: pregled parova i rezultata pogodan za projektor i štampu.
 
-**Kasnije (nije dio prve verzije):** sudije same unose balote preko svog linka. To traži bazu podataka na serveru i planira se tek kad faze 1–9 rade.
+**Kasnije (nije dio prve verzije):** sudije same unose sudijske listiće preko svog linka. To traži bazu podataka na serveru i planira se tek kad faze 1–9 rade.

@@ -20,9 +20,11 @@ var Formati = {
     // Koliko timova je u jednoj sobi i kako se zovu njihove pozicije (redom).
     timovaPoSobi: 2,
     pozicije: ['Propozicija', 'Opozicija'],
-    // Kratke oznake pozicija za govore na balotu: P1, O1, P2...
+    // Kratke oznake pozicija za govore na sudijskom listiću: P1, O1, P2...
     oznake: ['P', 'O'],
     imaRepliku: true,
+    // Poredak timova: pobjede → broj sudijskih listića → ukupni bodovi govornika (vidi tab.js).
+    kriterijiTimova: ['pobjede', 'listici', 'bodovi'],
     rasponi: {
       glavni: { naziv: 'Glavni govor', min: 60, max: 80 },
       replika: { naziv: 'Replika', min: 30, max: 40 }
@@ -38,6 +40,8 @@ var Formati = {
     pozicije: ['Otvaranje Vlade (OG)', 'Otvaranje Opozicije (OO)', 'Zatvaranje Vlade (CG)', 'Zatvaranje Opozicije (CO)'],
     oznake: ['OG', 'OO', 'CG', 'CO'],
     imaRepliku: false,
+    // Poredak timova: timski bodovi (1. mjesto u sobi = 3, 2. = 2, 3. = 1, 4. = 0) → ukupni bodovi govornika.
+    kriterijiTimova: ['timskiBodovi', 'bodovi'],
     rasponi: {
       govor: { naziv: 'Govor', min: 50, max: 100 }
     }
@@ -54,6 +58,8 @@ var Formati = {
     imaRepliku: false,
     // Nakon ovih govora slijedi unakrsno ispitivanje (ne boduje se posebno).
     unakrsnoNakon: ['A1', 'N1'],
+    // Poredak timova: pobjede → broj sudijskih listića → ukupni bodovi govornika.
+    kriterijiTimova: ['pobjede', 'listici', 'bodovi'],
     rasponi: {
       govor: { naziv: 'Govor', min: 1, max: 30 }
     }

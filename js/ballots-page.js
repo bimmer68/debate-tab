@@ -1,39 +1,39 @@
-// Forma za unos balota jedne sobe (dio stranice "Runde").
+// Forma za unos sudijskih listića jedne sobe (dio stranice "Runde").
 // Pravila i računanje su u ballots.js. Ovdje je samo izgled i čitanje forme.
 //
 // Forma ima dva dijela:
 //   1. Govornici: ko govori na kojem mjestu (i ko drži repliku u WSDC-u). Zajedničko za sobu.
-//   2. Po jedan balot za svakog sudiju u sobi: bodovi svih govora, redom kako se drže.
-// Dok se kuca, ispod svakog balota se odmah vidi zbir timova i ko pobjeđuje.
+//   2. Po jedan sudijski listić za svakog sudiju u sobi: bodovi svih govora, redom kako se drže.
+// Dok se kuca, ispod svakog sudijskog listića se odmah vidi zbir timova i ko pobjeđuje.
 
-// Indeks sobe čiji se balot trenutno unosi, ili null kad forma nije otvorena.
-var sobaZaBalot = null;
+// Indeks sobe čiji se sudijski listići trenutno unose, ili null kad forma nije otvorena.
+var sobaZaListic = null;
 
-function htmlFormeBalota(turnir, runda, indeks) {
+function htmlFormeListica(turnir, runda, indeks) {
   var soba = runda.sobe[indeks];
   var podaci = pocetniPodaci(turnir, soba);
   var uneseno = Boolean(soba.rezultat);
 
   var html =
     '<section class="kartica">' +
-      '<h2>Runda ' + runda.broj + ' · Soba ' + (indeks + 1) + ' ' + oznakaStatusaBalota(uneseno) + '</h2>' +
+      '<h2>Runda ' + runda.broj + ' · Soba ' + (indeks + 1) + ' ' + oznakaStatusaListica(uneseno) + '</h2>' +
       htmlTimovaSobe(turnir, soba) +
       '<p class="napomena">Pobjednik se ne bira posebno: aplikacija ga izračuna iz bodova. ' +
         'Bodovi su cijeli brojevi: ' + opisRaspona(turnir) + '. Neriješeno nije dozvoljeno.' +
-        (soba.sudije.length > 1 ? ' Svaki sudija ima svoj balot; tim pobjeđuje u sobi ako dobije većinu balota, ' +
+        (soba.sudije.length > 1 ? ' Svaki sudija ima svoj sudijski listić; tim pobjeđuje u sobi ako dobije većinu sudijskih listića, ' +
           'a bod govornika je prosjek svih sudija.' : '') + '</p>' +
-      '<form id="forma-balota" novalidate>' +
+      '<form id="forma-listica" novalidate>' +
         htmlGovornika(turnir, soba, podaci);
 
   soba.sudije.forEach(function (sudijaId, b) {
-    html += htmlBalota(turnir, soba, podaci.balote[b], b);
+    html += htmlListica(turnir, soba, podaci.listici[b], b);
   });
 
   html +=
         '<div id="rezultat-forme" class="rezultat-sobe" aria-live="polite"></div>' +
         '<div class="akcije">' +
-          '<button type="submit" class="dugme">Sačuvaj balot</button>' +
-          '<button type="button" class="dugme dugme-sporedno" data-akcija="zatvori-balot">Odustani</button>' +
+          '<button type="submit" class="dugme">Sačuvaj sudijske listiće</button>' +
+          '<button type="button" class="dugme dugme-sporedno" data-akcija="zatvori-listic">Odustani</button>' +
           '<span id="poruka-runde" class="poruka" role="status"></span>' +
         '</div>' +
       '</form>' +
@@ -42,7 +42,7 @@ function htmlFormeBalota(turnir, runda, indeks) {
 }
 
 // "nije uneseno" / "uneseno" pored naslova sobe.
-function oznakaStatusaBalota(uneseno) {
+function oznakaStatusaListica(uneseno) {
   return uneseno ?
     '<span class="status status-uneseno">Uneseno</span>' :
     '<span class="status status-nije-uneseno">Nije uneseno</span>';
@@ -72,9 +72,9 @@ function htmlTimovaSobe(turnir, soba) {
   return html + '</dl>';
 }
 
-// Ono što forma pokaže kad se otvori: spremljeni balot ako postoji,
+// Ono što forma pokaže kad se otvori: spremljeni sudijski listići ako postoje,
 // inače govornici redom kako su upisani u timu i prazni bodovi.
-// Oblik je isti kao podaci u provjeriBalote (bodovi su tekst).
+// Oblik je isti kao podaci u provjeriListice (bodovi su tekst).
 function pocetniPodaci(turnir, soba) {
   var r = soba.rezultat;
   var broj = brojGovornika(turnir);
@@ -88,8 +88,8 @@ function pocetniPodaci(turnir, soba) {
   var replika = soba.timovi.map(function (id, t) {
     return r && r.replika[t] ? r.replika[t] : '';
   });
-  var balote = soba.sudije.map(function (sudijaId) {
-    var spremljeni = r ? r.balote.filter(function (b) { return b.sudijaId === sudijaId; })[0] : null;
+  var listici = soba.sudije.map(function (sudijaId) {
+    var spremljeni = r ? r.listici.filter(function (b) { return b.sudijaId === sudijaId; })[0] : null;
     return {
       sudijaId: sudijaId,
       govori: soba.timovi.map(function (id, t) {
@@ -104,14 +104,14 @@ function pocetniPodaci(turnir, soba) {
       })
     };
   });
-  return { govornici: govornici, replika: replika, balote: balote };
+  return { govornici: govornici, replika: replika, listici: listici };
 }
 
 // Dio 1: ko govori na kojem mjestu, po timovima.
 function htmlGovornika(turnir, soba, podaci) {
   var broj = brojGovornika(turnir);
   var format = Formati[turnir.postavke.format];
-  var html = '<fieldset class="okvir-balota"><legend>Govornici</legend>' +
+  var html = '<fieldset class="okvir-listica"><legend>Govornici</legend>' +
     '<p class="napomena">Izaberi ko je govorio na kojem mjestu' +
       (imaRepliku(turnir) ? ' i ko drži repliku' : '') + '. Isto važi za sve sudije u sobi.</p>' +
     '<div class="mreza-govornika">';
@@ -146,18 +146,18 @@ function poljeIzboraGovornika(ime, oznaka, clanovi, odabrani, saPraznom) {
     mjestoZaGresku(ime) + '</label>';
 }
 
-// Dio 2: jedan balot (jedan sudija). Govori su poredani kako se drže u debati.
-function htmlBalota(turnir, soba, balot, b) {
-  var sudija = nadjiPoId(turnir.sudije, balot.sudijaId);
+// Dio 2: jedan sudijski listić (jedan sudija). Govori su poredani kako se drže u debati.
+function htmlListica(turnir, soba, listic, b) {
+  var sudija = nadjiPoId(turnir.sudije, listic.sudijaId);
   var unakrsno = Formati[turnir.postavke.format].unakrsnoNakon || [];
-  var html = '<fieldset class="okvir-balota"><legend>' +
-    (soba.sudije.length > 1 ? 'Balot ' + (b + 1) + ': ' : 'Balot: ') + sigurnoHtml(sudija ? sudija.ime : 'Obrisan sudija') +
+  var html = '<fieldset class="okvir-listica"><legend>' +
+    (soba.sudije.length > 1 ? 'Sudijski listić ' + (b + 1) + ': ' : 'Sudijski listić: ') + sigurnoHtml(sudija ? sudija.ime : 'Obrisan sudija') +
     '</legend><div class="redovi-bodova">';
 
   redoslijedGovora(turnir).forEach(function (govor) {
     var ime = poljeBoda(b, govor.tim, govor.mjesto);
     var raspon = rasponZaGovor(turnir, govor.vrsta);
-    var vrijednost = govor.vrsta === 'replika' ? balot.replike[govor.tim] : balot.govori[govor.tim][govor.mjesto];
+    var vrijednost = govor.vrsta === 'replika' ? listic.replike[govor.tim] : listic.govori[govor.tim][govor.mjesto];
     html += '<label class="red-boda' + (govor.vrsta === 'replika' ? ' red-replike' : '') + '">' +
       '<span class="oznaka-govora">' + govor.oznaka + '</span>' +
       '<span class="ime-govornika" data-tim="' + govor.tim + '" data-mjesto="' + govor.mjesto + '"></span>' +
@@ -171,15 +171,15 @@ function htmlBalota(turnir, soba, balot, b) {
   });
 
   return html + '</div>' +
-    '<p id="zbir-' + b + '" class="zbir-balota"></p>' +
-    '<p id="greska-balota-' + b + '" class="greska-polja" aria-live="polite"></p>' +
+    '<p id="zbir-' + b + '" class="zbir-listica"></p>' +
+    '<p id="greska-listica-' + b + '" class="greska-polja" aria-live="polite"></p>' +
     '</fieldset>';
 }
 
 // ---- Čitanje forme ----
 
-// Sve što je upisano na formi, u obliku koji traži provjeriBalote (bodovi ostaju tekst).
-function procitajFormuBalota(forma, turnir, soba) {
+// Sve što je upisano na formi, u obliku koji traži provjeriListice (bodovi ostaju tekst).
+function procitajFormuListica(forma, turnir, soba) {
   var broj = brojGovornika(turnir);
   var polja = forma.elements;
   var govornici = soba.timovi.map(function (id, t) {
@@ -193,7 +193,7 @@ function procitajFormuBalota(forma, turnir, soba) {
     // U 1v1 repliku drži jedini govornik, pa nema šta birati.
     return broj === 1 ? govornici[t][0] : polja[poljeReplike(t)].value;
   });
-  var balote = soba.sudije.map(function (sudijaId, b) {
+  var listici = soba.sudije.map(function (sudijaId, b) {
     return {
       sudijaId: sudijaId,
       govori: soba.timovi.map(function (id, t) {
@@ -208,18 +208,18 @@ function procitajFormuBalota(forma, turnir, soba) {
       })
     };
   });
-  return { govornici: govornici, replika: replika, balote: balote };
+  return { govornici: govornici, replika: replika, listici: listici };
 }
 
 // ---- Živi prikaz (dok se kuca) ----
 
 // Poziva se kod svake promjene na formi: upiše imena govornika pored bodova,
-// zbir timova ispod svakog balota i rezultat sobe na dnu.
+// zbir timova ispod svakog sudijskog listića i rezultat sobe na dnu.
 function osvjeziZiviPrikaz(forma) {
   var turnir = ucitajTurnir();
   var runda = nadjiRundu(turnir, 1);
-  var soba = runda.sobe[sobaZaBalot];
-  var podaci = procitajFormuBalota(forma, turnir, soba);
+  var soba = runda.sobe[sobaZaListic];
+  var podaci = procitajFormuListica(forma, turnir, soba);
 
   var imena = forma.querySelectorAll('.ime-govornika');
   for (var i = 0; i < imena.length; i++) {
@@ -231,18 +231,18 @@ function osvjeziZiviPrikaz(forma) {
   }
 
   var sviGotovi = true;
-  podaci.balote.forEach(function (balot, b) {
+  podaci.listici.forEach(function (listic, b) {
     var element = document.getElementById('zbir-' + b);
-    var zbirovi = zbiroviAkoSuBodoviIspravni(turnir, balot);
+    var zbirovi = zbiroviAkoSuBodoviIspravni(turnir, listic);
     if (!zbirovi) {
       element.textContent = 'Zbir: upiši sve bodove (' + opisRaspona(turnir) + ').';
-      element.className = 'zbir-balota';
+      element.className = 'zbir-listica';
       sviGotovi = false;
       return;
     }
     var greska = greskaZbira(turnir, zbirovi);
-    element.textContent = 'Zbir: ' + tekstZbirova(turnir, zbirovi) + (greska ? '' : ' → ' + tekstPorekaBalota(turnir, soba, zbirovi));
-    element.className = 'zbir-balota' + (greska ? ' zbir-nerijeseno' : '');
+    element.textContent = 'Zbir: ' + tekstZbirova(turnir, zbirovi) + (greska ? '' : ' → ' + tekstPoretkaListica(turnir, soba, zbirovi));
+    element.className = 'zbir-listica' + (greska ? ' zbir-nerijeseno' : '');
     if (greska) {
       element.textContent += ' — neriješeno nije dozvoljeno.';
       sviGotovi = false;
@@ -250,11 +250,11 @@ function osvjeziZiviPrikaz(forma) {
   });
 
   var rezultatForme = document.getElementById('rezultat-forme');
-  if (sviGotovi && podaci.balote.length > 0) {
+  if (sviGotovi && podaci.listici.length > 0) {
     var rezultat = rezultatSobe(turnir, soba, pretvoriRezultat(podaci));
     rezultatForme.textContent = rezultat.odluceno ?
       'Rezultat sobe: ' + opisRezultata(turnir, soba, rezultat) :
-      'Iz balota se ne može odrediti pobjednik sobe.';
+      'Iz sudijskih listića se ne može odrediti pobjednik sobe.';
   } else {
     rezultatForme.textContent = '';
   }
@@ -269,12 +269,12 @@ function ukloniGreskuPolja(polje) {
   }
 }
 
-// Zbirovi timova na balotu, ili null ako neki bod još nije ispravan.
-function zbiroviAkoSuBodoviIspravni(turnir, balot) {
+// Zbirovi timova na sudijskom listiću, ili null ako neki bod još nije ispravan.
+function zbiroviAkoSuBodoviIspravni(turnir, listic) {
   var ispravno = redoslijedGovora(turnir).every(function (govor) {
-    return !greskaBoda(tekstBoda(balot, govor), rasponZaGovor(turnir, govor.vrsta));
+    return !greskaBoda(tekstBoda(listic, govor), rasponZaGovor(turnir, govor.vrsta));
   });
-  return ispravno ? zbiroviBalota(turnir, pretvoriBalot(balot)) : null;
+  return ispravno ? zbiroviListica(turnir, pretvoriListic(listic)) : null;
 }
 
 // "P 214 : 213 O" ili kod BP-a "OG 150 · OO 162 · CG 148 · CO 155"
@@ -286,8 +286,8 @@ function tekstZbirova(turnir, zbirovi) {
   return zbirovi.map(function (z, t) { return oznake[t] + ' ' + z; }).join(' · ');
 }
 
-// Ko pobjeđuje na jednom balotu: "pobjeđuje Mostar A" ili kod BP-a "1. OO, 2. CO, 3. OG, 4. CG".
-function tekstPorekaBalota(turnir, soba, zbirovi) {
+// Ko pobjeđuje na jednom sudijskom listiću: "pobjeđuje Mostar A" ili kod BP-a "1. OO, 2. CO, 3. OG, 4. CG".
+function tekstPoretkaListica(turnir, soba, zbirovi) {
   var poredak = poredakPoZbiru(zbirovi);
   if (zbirovi.length === 2) {
     return 'pobjeđuje ' + nazivTimaUSobi(turnir, soba, poredak[0]);
@@ -296,14 +296,14 @@ function tekstPorekaBalota(turnir, soba, zbirovi) {
   return poredak.map(function (t, mjesto) { return (mjesto + 1) + '. ' + oznake[t]; }).join(', ');
 }
 
-// Rezultat sobe za prikaz, npr. "pobjednik Mostar A (2:1 balota)"
+// Rezultat sobe za prikaz, npr. "pobjednik Mostar A (2:1 sudijskih listića)"
 // ili kod BP-a "1. Mostar A (OO), 2. Tuzla B (CO), ...".
 function opisRezultata(turnir, soba, rezultat) {
   if (soba.timovi.length === 2) {
     var pobjednik = rezultat.poredak[0];
     var gubitnik = rezultat.poredak[1];
     return 'pobjednik ' + nazivTimaUSobi(turnir, soba, pobjednik) +
-      (rezultat.zbirovi.length > 1 ? ' (' + rezultat.glasovi[pobjednik] + ':' + rezultat.glasovi[gubitnik] + ' balota)' : '');
+      (rezultat.zbirovi.length > 1 ? ' (' + rezultat.glasovi[pobjednik] + ':' + rezultat.glasovi[gubitnik] + ' sudijskih listića)' : '');
   }
   var oznake = Formati[turnir.postavke.format].oznake;
   return rezultat.poredak.map(function (t, mjesto) {
@@ -318,41 +318,41 @@ function nazivTimaUSobi(turnir, soba, t) {
 
 // ---- Akcije ----
 
-function otvoriBalot(indeks) {
-  sobaZaBalot = indeks;
+function otvoriListic(indeks) {
+  sobaZaListic = indeks;
   osvjeziRunde('', false);
-  osvjeziZiviPrikaz(document.getElementById('forma-balota'));
+  osvjeziZiviPrikaz(document.getElementById('forma-listica'));
   window.scrollTo(0, 0);
 }
 
-function zatvoriBalot() {
-  sobaZaBalot = null;
+function zatvoriListic() {
+  sobaZaListic = null;
   osvjeziRunde('', false);
 }
 
-function spremiBalot(forma) {
+function spremiListic(forma) {
   var turnir = ucitajTurnir();
   var runda = nadjiRundu(turnir, 1);
-  if (!runda || runda.status !== 'objavljena' || !runda.sobe[sobaZaBalot]) {
-    sobaZaBalot = null;
-    osvjeziRunde('Balote se unose samo za objavljene runde.', true);
+  if (!runda || runda.status !== 'objavljena' || !runda.sobe[sobaZaListic]) {
+    sobaZaListic = null;
+    osvjeziRunde('Sudijski listići se unose samo za objavljene runde.', true);
     return;
   }
-  var soba = runda.sobe[sobaZaBalot];
-  var podaci = procitajFormuBalota(forma, turnir, soba);
-  var greske = provjeriBalote(turnir, soba, podaci);
+  var soba = runda.sobe[sobaZaListic];
+  var podaci = procitajFormuListica(forma, turnir, soba);
+  var greske = provjeriListice(turnir, soba, podaci);
 
   var imaGresakaPolja = prikaziGreske(forma, greske.polja);
-  greske.balote.forEach(function (greska, b) {
-    document.getElementById('greska-balota-' + b).textContent = greska;
+  greske.listici.forEach(function (greska, b) {
+    document.getElementById('greska-listica-' + b).textContent = greska;
   });
-  if (!baloteIspravne(greske)) {
-    prikaziPoruku('poruka-runde', greske.soba || 'Balot nije sačuvan. Ispravi ono što je označeno crveno.', true);
+  if (!listiciIspravni(greske)) {
+    prikaziPoruku('poruka-runde', greske.soba || 'Sudijski listići nisu sačuvani. Ispravi ono što je označeno crveno.', true);
     if (!imaGresakaPolja) {
-      // Nema grešaka u poljima, ali ima neriješenih balota: pokaži prvi takav.
-      var prvi = greske.balote.indexOf(greske.balote.filter(function (g) { return g; })[0]);
+      // Nema grešaka u poljima, ali ima neriješenih sudijskih listića: pokaži prvi takav.
+      var prvi = greske.listici.indexOf(greske.listici.filter(function (g) { return g; })[0]);
       if (prvi !== -1) {
-        document.getElementById('greska-balota-' + prvi).scrollIntoView({ block: 'center' });
+        document.getElementById('greska-listica-' + prvi).scrollIntoView({ block: 'center' });
       }
     }
     return;
@@ -363,8 +363,8 @@ function spremiBalot(forma) {
     prikaziPoruku('poruka-runde', 'Spremanje nije uspjelo.', true);
     return;
   }
-  var brojSobe = sobaZaBalot + 1;
-  sobaZaBalot = null;
-  osvjeziRunde('Balot za sobu ' + brojSobe + ' je sačuvan: ' +
+  var brojSobe = sobaZaListic + 1;
+  sobaZaListic = null;
+  osvjeziRunde('Sudijski listići za sobu ' + brojSobe + ' su sačuvani: ' +
     opisRezultata(turnir, soba, rezultatSobe(turnir, soba, soba.rezultat)) + '.', false);
 }

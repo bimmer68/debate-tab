@@ -1,9 +1,11 @@
-// Stranica "Runde": parovanje runde 1 i unos balota.
-// Priprema (swing timovi, veličina panela), nacrt sa ručnim zamjenama, objava i balote.
-// Pravila su u rounds.js, algoritam parovanja u pairing.js, a forma za balote u ballots-page.js.
+// Stranica "Runde": parovanje runde 1 i unos sudijskih listića.
+// Priprema (swing timovi, veličina panela), nacrt sa ručnim zamjenama, objava i sudijski listići.
+// Pravila su u rounds.js, algoritam parovanja u pairing.js, a forma za sudijske listiće u ballots-page.js.
 //
 // Ručna zamjena radi "klik pa klik": klikni na tim (ili sudiju), pa na drugi tim
 // (ili sudiju). Njih dvoje zamijene mjesta. Radi jednako na laptopu i na mobitelu.
+// Isto tako se sudije dodaju i vraćaju: klikni na slobodnog sudiju, pa na "Dodaj u ovu sobu"
+// kod sobe kojoj nedostaje sudija; ili klikni na sudiju u sobi, pa na "Vrati među slobodne".
 
 // Tim ili sudija koji je kliknut prvi i čeka drugi klik. null = ništa nije odabrano.
 // Izgleda ovako: { vrsta: 'timovi', id: 't3' } ili { vrsta: 'sudije', id: 's2' }
@@ -14,7 +16,7 @@ var izabraniPanel = ZADANI_PANEL;
 
 function stranicaRundi() {
   odabranoZaZamjenu = null;
-  sobaZaBalot = null;
+  sobaZaListic = null;
   return (
     '<h1>Runde</h1>' +
     '<div id="runde-sadrzaj"></div>' +
@@ -39,9 +41,9 @@ function pokreniRunde() {
     }
   });
 
-  // Forma za balote: dok se kuca, odmah se računa zbir; "Sačuvaj balot" je provjeri i spremi.
+  // Forma za sudijske listiće: dok se kuca, odmah se računa zbir; "Sačuvaj sudijske listiće" ih provjeri i spremi.
   sadrzaj.addEventListener('input', function (dogadjaj) {
-    var forma = dogadjaj.target.closest('#forma-balota');
+    var forma = dogadjaj.target.closest('#forma-listica');
     if (forma) {
       prikaziPoruku('poruka-runde', '', false);
       ukloniGreskuPolja(dogadjaj.target);
@@ -50,9 +52,9 @@ function pokreniRunde() {
   });
 
   sadrzaj.addEventListener('submit', function (dogadjaj) {
-    if (dogadjaj.target.id === 'forma-balota') {
+    if (dogadjaj.target.id === 'forma-listica') {
       dogadjaj.preventDefault();
-      spremiBalot(dogadjaj.target);
+      spremiListic(dogadjaj.target);
     }
   });
 
@@ -83,10 +85,14 @@ function uradiAkciju(dugme) {
     vratiUNacrtKlikom();
   } else if (akcija === 'obrisi') {
     obrisiNacrtKlikom();
-  } else if (akcija === 'balot') {
-    otvoriBalot(Number(dugme.dataset.soba));
-  } else if (akcija === 'zatvori-balot') {
-    zatvoriBalot();
+  } else if (akcija === 'dodaj-sudiju') {
+    dodajSudijuKlikom(Number(dugme.dataset.soba));
+  } else if (akcija === 'oslobodi-sudiju') {
+    oslobodiSudijuKlikom();
+  } else if (akcija === 'listic') {
+    otvoriListic(Number(dugme.dataset.soba));
+  } else if (akcija === 'zatvori-listic') {
+    zatvoriListic();
   }
 }
 
@@ -99,8 +105,8 @@ function osvjeziRunde(poruka, jeGreska) {
     html = htmlPripreme(turnir);
   } else if (runda.status === 'nacrt') {
     html = htmlNacrta(turnir, runda);
-  } else if (sobaZaBalot !== null && runda.sobe[sobaZaBalot]) {
-    html = htmlFormeBalota(turnir, runda, sobaZaBalot);
+  } else if (sobaZaListic !== null && runda.sobe[sobaZaListic]) {
+    html = htmlFormeListica(turnir, runda, sobaZaListic);
   } else {
     html = htmlObjavljene(turnir, runda);
   }
@@ -180,12 +186,14 @@ function htmlNacrta(turnir, runda) {
       '<p class="napomena">Ručna zamjena: klikni na tim, pa na drugi tim, i oni zamijene mjesta ' +
         '(u istoj sobi to znači zamjenu strana). Isto važi za sudije, i za slobodne sudije ispod soba. ' +
         'Drugi klik na isti tim (ili tipka Esc) poništava odabir.</p>' +
+      '<p class="napomena">Dodavanje sudije: klikni na slobodnog sudiju, pa na "Dodaj u ovu sobu" kod sobe ' +
+        'kojoj nedostaje sudija. Vraćanje: klikni na sudiju u sobi, pa na "Vrati među slobodne".</p>' +
     '</section>' +
     htmlSoba(turnir, runda, true);
   return html;
 }
 
-// Objavljena runda: pregled i unos balota. Može se vratiti u nacrt.
+// Objavljena runda: pregled i unos sudijskih listića. Može se vratiti u nacrt.
 function htmlObjavljene(turnir, runda) {
   var unesenih = brojUnesenihSoba(runda);
   return (
@@ -193,9 +201,9 @@ function htmlObjavljene(turnir, runda) {
       '<h2>Runda 1 <span class="status status-objavljena">Objavljena</span></h2>' +
       '<p>Panel: ' + tekstBroja(runda.velicinaPanela, 'sudija', 'sudije', 'sudija') + ' po sobi. ' +
         'Timovi i sudije iz ove runde se ne mogu obrisati.</p>' +
-      '<p><strong>Balote:</strong> unesene za ' + unesenih + ' od ' +
+      '<p><strong>Sudijski listići:</strong> uneseni za ' + unesenih + ' od ' +
         tekstBroja(runda.sobe.length, 'sobe', 'sobe', 'soba') + '.' +
-        (unesenih < runda.sobe.length ? ' Klikni "Unesi balot" kod sobe.' : ' Sve sobe su unesene.') + '</p>' +
+        (unesenih < runda.sobe.length ? ' Klikni "Unesi sudijske listiće" kod sobe.' : ' Sve sobe su unesene.') + '</p>' +
       '<div class="akcije">' +
         '<button type="button" class="dugme dugme-sporedno" data-akcija="vrati">Vrati u nacrt</button>' +
         '<span id="poruka-runde" class="poruka" role="status"></span>' +
@@ -283,23 +291,43 @@ function htmlSoba(turnir, runda, uredjivo) {
   html += '</div>';
 
   var slobodne = slobodneSudije(turnir, runda);
-  if (slobodne.length > 0) {
-    html += '<section class="kartica"><h2>Slobodne sudije (' + slobodne.length + ')</h2>' +
+  var odabrani = uredjivo ? odabraniSudija(runda) : null;
+  // Kad je odabran sudija iz sobe, dio "Slobodne sudije" se pokaže i kad je prazan,
+  // da bi imao gdje kliknuti "Vrati među slobodne".
+  var mozeSeVratiti = odabrani !== null && !odabrani.slobodan;
+  if (slobodne.length > 0 || mozeSeVratiti) {
+    html += '<section class="kartica' + (mozeSeVratiti ? ' soba-cilj' : '') + '">' +
+      '<h2>Slobodne sudije (' + slobodne.length + ')</h2>' +
       '<p class="napomena">Nisu dodijeljene nijednoj sobi.' +
-        (uredjivo ? ' Klikni na slobodnog sudiju, pa na sudiju u sobi, da ih zamijeniš.' : '') + '</p>' +
+        (uredjivo ? ' Klikni na slobodnog sudiju, pa na sudiju u sobi da ih zamijeniš, ' +
+          'ili na "Dodaj u ovu sobu" kod sobe kojoj nedostaje sudija.' : '') + '</p>' +
       '<div class="cipovi">' +
         slobodne.map(function (s) { return cipSudije(turnir, s.id, false, uredjivo); }).join('') +
-      '</div></section>';
+      '</div>' +
+      (mozeSeVratiti ? '<div class="akcije"><button type="button" class="dugme dugme-malo" data-akcija="oslobodi-sudiju">' +
+        'Vrati među slobodne: ' + sigurnoHtml(imeUcesnika(turnir, 'sudije', odabrani.id)) + '</button></div>' : '') +
+      '</section>';
   }
   return html;
+}
+
+// Odabrani sudija (prvi klik) i da li je slobodan: { id: 's2', slobodan: true }, ili null.
+function odabraniSudija(runda) {
+  if (!odabranoZaZamjenu || odabranoZaZamjenu.vrsta !== 'sudije') {
+    return null;
+  }
+  return { id: odabranoZaZamjenu.id, slobodan: !nadjiMjesto(runda, 'sudije', odabranoZaZamjenu.id) };
 }
 
 function htmlSobe(turnir, runda, soba, indeks, uredjivo) {
   var oznake = oznakeSobe(turnir, soba);
   var imaProblem = oznake.istiKlub.length > 0 || oznake.konflikti.length > 0;
   var nazivi = pozicije(turnir);
+  // Odabran je slobodni sudija, a ovoj sobi nedostaje sudija: može se dodati ovdje.
+  var odabrani = uredjivo ? odabraniSudija(runda) : null;
+  var mozeSeDodati = odabrani !== null && odabrani.slobodan && sobaTrebaSudiju(runda, soba);
 
-  var html = '<article class="soba' + (imaProblem ? ' soba-problem' : '') + '">' +
+  var html = '<article class="soba' + (imaProblem ? ' soba-problem' : '') + (mozeSeDodati ? ' soba-cilj' : '') + '">' +
     '<h3>Soba ' + (indeks + 1) + '</h3>';
   oznake.istiKlub.forEach(function (klub) {
     html += '<p class="oznaka-crvena">Timovi iz istog kluba: ' + sigurnoHtml(klub) + '</p>';
@@ -324,22 +352,26 @@ function htmlSobe(turnir, runda, soba, indeks, uredjivo) {
     html += '<span class="upozorenje">Nedostaje ' +
       tekstBroja(runda.velicinaPanela - soba.sudije.length, 'sudija', 'sudije', 'sudija') + ' za pun panel.</span>';
   }
+  if (mozeSeDodati) {
+    html += '<div class="akcije"><button type="button" class="dugme dugme-malo" data-akcija="dodaj-sudiju" data-soba="' + indeks + '">' +
+      'Dodaj u ovu sobu: ' + sigurnoHtml(imeUcesnika(turnir, 'sudije', odabrani.id)) + '</button></div>';
+  }
   html += '</div>';
   if (runda.status === 'objavljena') {
-    html += htmlStatusaBalota(turnir, soba, indeks);
+    html += htmlStatusaListica(turnir, soba, indeks);
   }
   return html + '</article>';
 }
 
 // Ispod sobe u objavljenoj rundi: "Nije uneseno" / "Uneseno" sa rezultatom i dugme za unos.
-function htmlStatusaBalota(turnir, soba, indeks) {
-  var html = '<div class="balot-sobe"><span class="panel-naslov">Balot</span>' + oznakaStatusaBalota(Boolean(soba.rezultat));
+function htmlStatusaListica(turnir, soba, indeks) {
+  var html = '<div class="listic-sobe"><span class="panel-naslov">Sudijski listići</span>' + oznakaStatusaListica(Boolean(soba.rezultat));
   if (soba.rezultat) {
     html += '<p class="rezultat-sobe">Rezultat: ' +
       sigurnoHtml(opisRezultata(turnir, soba, rezultatSobe(turnir, soba, soba.rezultat))) + '</p>';
   }
-  return html + '<div class="akcije"><button type="button" class="dugme dugme-malo" data-akcija="balot" data-soba="' + indeks + '">' +
-    (soba.rezultat ? 'Uredi balot' : 'Unesi balot') + '</button></div></div>';
+  return html + '<div class="akcije"><button type="button" class="dugme dugme-malo" data-akcija="listic" data-soba="' + indeks + '">' +
+    (soba.rezultat ? 'Uredi sudijske listiće' : 'Unesi sudijske listiće') + '</button></div></div>';
 }
 
 function cipTima(turnir, id, uredjivo) {
@@ -446,8 +478,7 @@ function odaberiZaZamjenu(vrsta, id) {
   var prvi = odabranoZaZamjenu;
   if (!prvi || prvi.vrsta !== vrsta) {
     odabranoZaZamjenu = { vrsta: vrsta, id: id };
-    osvjeziRunde(vrsta === 'timovi' ? 'Sada klikni na tim sa kojim ga želiš zamijeniti.' :
-      'Sada klikni na sudiju sa kojim ga želiš zamijeniti.', false);
+    osvjeziRunde(porukaNakonOdabira(vrsta, id), false);
     return;
   }
   odabranoZaZamjenu = null;
@@ -471,6 +502,52 @@ function odaberiZaZamjenu(vrsta, id) {
   }
   sacuvajTurnir(turnir);
   osvjeziRunde('Zamijenjeno: ' + imeUcesnika(turnir, vrsta, prvi.id) + ' ↔ ' + imeUcesnika(turnir, vrsta, id) + '.', false);
+}
+
+// Šta korisnik može uraditi nakon prvog klika.
+function porukaNakonOdabira(vrsta, id) {
+  if (vrsta === 'timovi') {
+    return 'Sada klikni na tim sa kojim ga želiš zamijeniti.';
+  }
+  var runda = nadjiRundu(ucitajTurnir(), 1);
+  if (nadjiMjesto(runda, 'sudije', id)) {
+    return 'Sada klikni na sudiju sa kojim ga želiš zamijeniti, ili na "Vrati među slobodne".';
+  }
+  var trebaju = runda.sobe.filter(function (s) { return sobaTrebaSudiju(runda, s); }).length;
+  return trebaju > 0 ?
+    'Sada klikni na "Dodaj u ovu sobu" kod sobe kojoj nedostaje sudija, ili na sudiju u sobi za zamjenu.' :
+    'Sada klikni na sudiju u sobi sa kojim ga želiš zamijeniti. (Nijednoj sobi ne nedostaje sudija.)';
+}
+
+// Drugi klik: slobodni sudija ulazi u sobu kojoj nedostaje sudija.
+function dodajSudijuKlikom(indeksSobe) {
+  var turnir = ucitajTurnir();
+  var runda = nadjiRundu(turnir, 1);
+  var odabrani = runda && runda.status === 'nacrt' ? odabraniSudija(runda) : null;
+  odabranoZaZamjenu = null;
+  if (!odabrani || !dodajSudijuUSobu(runda, odabrani.id, indeksSobe)) {
+    osvjeziRunde('Sudija nije dodan. Odaberi slobodnog sudiju, pa sobu kojoj nedostaje sudija.', true);
+    return;
+  }
+  sacuvajTurnir(turnir);
+  var konflikt = oznakeSobe(turnir, runda.sobe[indeksSobe]).konflikti.indexOf(odabrani.id) !== -1;
+  osvjeziRunde(imeUcesnika(turnir, 'sudije', odabrani.id) + ' je dodan u sobu ' + (indeksSobe + 1) + '.' +
+    (konflikt ? ' Pažnja: sudija ima konflikt sa timom iz svog kluba (crvena oznaka).' : ''), konflikt);
+}
+
+// Drugi klik: odabrani sudija izlazi iz sobe i postaje slobodan.
+function oslobodiSudijuKlikom() {
+  var turnir = ucitajTurnir();
+  var runda = nadjiRundu(turnir, 1);
+  var odabrani = runda && runda.status === 'nacrt' ? odabraniSudija(runda) : null;
+  odabranoZaZamjenu = null;
+  var soba = odabrani ? oslobodiSudiju(runda, odabrani.id) : -1;
+  if (soba === -1) {
+    osvjeziRunde('Odaberi sudiju koji je u sobi.', true);
+    return;
+  }
+  sacuvajTurnir(turnir);
+  osvjeziRunde(imeUcesnika(turnir, 'sudije', odabrani.id) + ' je vraćen među slobodne sudije (iz sobe ' + (soba + 1) + ').', false);
 }
 
 function imeUcesnika(turnir, vrsta, id) {
@@ -504,13 +581,13 @@ function vratiUNacrtKlikom() {
   var turnir = ucitajTurnir();
   var runda = nadjiRundu(turnir, 1);
   var unesenih = brojUnesenihSoba(runda);
-  // U nacrtu se timovi i sudije mogu zamijeniti, pa unesene balote više ne bi odgovarale sobama.
+  // U nacrtu se timovi i sudije mogu zamijeniti, pa uneseni sudijski listići više ne bi odgovarali sobama.
   var pitanje = 'Vratiti rundu 1 u nacrt? Parovi ostaju, ali se ponovo mogu mijenjati.' +
-    (unesenih > 0 ? '\n\nPAŽNJA: unesene balote (' + tekstBroja(unesenih, 'soba', 'sobe', 'soba') + ') će biti obrisane.' : '');
+    (unesenih > 0 ? '\n\nPAŽNJA: uneseni sudijski listići (' + tekstBroja(unesenih, 'soba', 'sobe', 'soba') + ') će biti obrisani.' : '');
   if (!confirm(pitanje)) {
     return;
   }
-  obrisiBaloteRunde(runda);
+  obrisiListiceRunde(runda);
   runda.status = 'nacrt';
   sacuvajTurnir(turnir);
   osvjeziRunde('Runda 1 je ponovo nacrt.', false);

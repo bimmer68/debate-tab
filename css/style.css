@@ -599,7 +599,7 @@ button.cip:focus-visible {
   outline-offset: 1px;
 }
 
-/* ---- Balote ---- */
+/* ---- Sudijski listići ---- */
 
 .status-uneseno {
   color: var(--boja-uspjeh);
@@ -611,18 +611,18 @@ button.cip:focus-visible {
   border-color: var(--boja-upozorenje);
 }
 
-/* Dio ispod sobe: status balota, rezultat i dugme */
-.balot-sobe {
+/* Dio ispod sobe: status sudijskih listića, rezultat i dugme */
+.listic-sobe {
   margin-top: 12px;
   padding-top: 8px;
   border-top: 1px solid var(--boja-okvir);
 }
 
-.balot-sobe .status {
+.listic-sobe .status {
   margin-left: 0;
 }
 
-.balot-sobe .akcije {
+.listic-sobe .akcije {
   margin: 8px 0 0;
 }
 
@@ -635,8 +635,8 @@ button.cip:focus-visible {
   display: none;
 }
 
-/* Jedan dio forme: govornici ili balot jednog sudije */
-.okvir-balota {
+/* Jedan dio forme: govornici ili sudijski listić jednog sudije */
+.okvir-listica {
   border: 1px solid var(--boja-okvir);
   border-radius: var(--radijus);
   padding: 8px var(--razmak) var(--razmak);
@@ -644,7 +644,7 @@ button.cip:focus-visible {
   min-width: 0;
 }
 
-.okvir-balota legend {
+.okvir-listica legend {
   font-weight: 700;
   padding: 0 6px;
 }
@@ -706,13 +706,59 @@ button.cip:focus-visible {
   color: var(--boja-tekst-blijeda);
 }
 
-.zbir-balota {
+.zbir-listica {
   font-weight: 600;
   margin: 10px 0 0;
 }
 
 .zbir-nerijeseno {
   color: var(--boja-greska);
+}
+
+/* ---- Runde: dodavanje i vraćanje sudija ---- */
+
+/* Soba kojoj nedostaje sudija, dok je odabran slobodni sudija: ovdje se može dodati */
+.soba-cilj {
+  border-color: var(--boja-naglasak);
+  border-style: dashed;
+}
+
+/* ---- Tab ---- */
+
+/* Široka tabela se na mobitelu pomjera lijevo-desno unutar svog okvira,
+   a ne cijela stranica. */
+.okvir-tabele {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.tabela th,
+.tabela td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--boja-okvir);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tabela th {
+  font-size: 0.85rem;
+  color: var(--boja-tekst-blijeda);
+  font-weight: 600;
+}
+
+/* Brojevi poravnati udesno, da se cifre lakše porede */
+.tabela .broj {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela tbody tr:hover {
+  background: var(--boja-polje);
 }
 
 /* Laptop: malo više "zraka" oko sadržaja i postavke u dvije kolone */

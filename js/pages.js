@@ -6,12 +6,12 @@ var Stranice = {
   pocetna: function () {
     return (
       '<h1>Dobro došli u Debate Tab</h1>' +
-      '<p>Aplikacija za vođenje debatnih turnira: timovi, sudije, parovanje, balote i poredak.</p>' +
+      '<p>Aplikacija za vođenje debatnih turnira: timovi, sudije, parovanje, sudijski listići i poredak.</p>' +
       '<div class="mreza">' +
         plocica('postavke', 'Postavke', 'Naziv turnira, format i broj rundi.') +
         plocica('timovi', 'Timovi', 'Klubovi, timovi i govornici.') +
         plocica('sudije', 'Sudije', 'Sudije i klubovi kojima pripadaju.') +
-        plocica('runde', 'Runde', 'Parovanje i unos balota.') +
+        plocica('runde', 'Runde', 'Parovanje i unos sudijskih listića.') +
         plocica('tab', 'Tab', 'Poredak timova i govornika.') +
       '</div>'
     );
@@ -25,9 +25,7 @@ var Stranice = {
 
   runde: stranicaRundi,
 
-  tab: function () {
-    return uIzradi('Tab', 'Ovdje će se prikazivati poredak timova i govornika.', 6);
-  },
+  tab: stranicaTaba,
 
   nijePronadjena: function () {
     return (
@@ -53,16 +51,5 @@ function plocica(kljuc, naslov, opis) {
       '<h2>' + naslov + '</h2>' +
       '<p class="napomena">' + opis + '</p>' +
     '</a>'
-  );
-}
-
-// Privremeni sadržaj za stranice koje još nisu napravljene.
-function uIzradi(naslov, opis, faza) {
-  return (
-    '<h1>' + naslov + '</h1>' +
-    '<div class="kartica">' +
-      '<p>' + opis + '</p>' +
-      '<p class="napomena">Ova stranica dolazi u fazi ' + faza + '.</p>' +
-    '</div>'
   );
 }
